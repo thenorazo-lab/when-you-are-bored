@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">심심할때여기어때</string>
+    <string name="title_activity_main">심심할때여기어때</string>
+    <string name="package_name">com.whenbored.app</string>
+    <string name="custom_url_scheme">com.whenbored.app</string>
+</resources>

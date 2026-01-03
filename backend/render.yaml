@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: when-bored-backend
+    runtime: node
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 18.20.5
+      - key: MONGODB_URI
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+    healthCheckPath: /health
