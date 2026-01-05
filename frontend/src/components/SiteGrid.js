@@ -30,7 +30,7 @@ const SiteGrid = ({ sites, categoryName }) => {
 
   return (
     <div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-1">
         {displaySites.map((site) => {
           const hasVisited = visitHistoryManager.hasVisited(site.id);
           const faviconUrl = getFaviconUrl(site.url);
@@ -39,31 +39,31 @@ const SiteGrid = ({ sites, categoryName }) => {
             <div
               key={site.id}
               onClick={() => handleSiteClick(site)}
-              className={`backdrop-blur-md rounded-xl p-4 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer ${
+              className={`backdrop-blur-md rounded-lg p-1 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer ${
                 hasVisited 
                   ? 'bg-white/5 hover:bg-white/10' 
                   : 'bg-white/10 hover:bg-white/20'
               }`}
             >
               {/* 로고 이미지 */}
-              <div className="flex justify-center items-center mb-3 h-16">
+              <div className="flex justify-center items-center mb-0.5 h-4">
                 {faviconUrl ? (
                   <img 
                     src={faviconUrl} 
                     alt={site.name}
-                    className="w-12 h-12 object-contain"
+                    className="w-3 h-3 object-contain"
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'block';
                     }}
                   />
                 ) : null}
-                <div className="text-4xl" style={{ display: faviconUrl ? 'none' : 'block' }}>
+                <div className="text-xs" style={{ display: faviconUrl ? 'none' : 'block' }}>
                   {site.icon || '🌐'}
                 </div>
               </div>
               
-              <h3 className={`text-center font-bold text-sm ${
+              <h3 className={`text-center font-bold text-[6px] ${
                 hasVisited ? 'text-white/60' : 'text-white'
               }`}>
                 {site.name}
@@ -75,10 +75,10 @@ const SiteGrid = ({ sites, categoryName }) => {
       
       {/* 전체보기 버튼 */}
       {hasMore && (
-        <div className="mt-4 text-center">
+        <div className="mt-2 text-center">
           <button
             onClick={() => setShowAll(!showAll)}
-            className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-6 py-3 rounded-lg font-bold transition-all"
+            className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
           >
             {showAll ? '접기 ▲' : `전체보기 (${sites.length}개) ▼`}
           </button>

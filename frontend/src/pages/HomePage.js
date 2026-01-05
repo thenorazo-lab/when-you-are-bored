@@ -14,7 +14,7 @@ const HomePage = () => {
     selectRandomSiteAndFetchIssues();
   }, []);
 
-  const selectRandomSiteAndFetchIssues = () => {
+  const selectRandomSiteAndFetchIssues = async () => {
     // 크롤링 구현된 사이트만 표시 (구현 완료 시 추가)
     const crawlableSites = [
       { id: 'humoruniv', name: '웃긴대학', category: '커뮤니티' },
@@ -25,8 +25,6 @@ const HomePage = () => {
       { id: 'instiz', name: '인스티즈', category: '커뮤니티' },
       { id: 'dogdrip', name: '개드립', category: '커뮤니티' },
       { id: 'natepann', name: '네이트판', category: '커뮤니티' },
-      { id: 'tiktok', name: '틱톡', category: '숏폼' },
-      { id: 'youtube-shorts', name: '유튜브 쇼츠', category: '숏폼' },
       { id: 'yosimdae', name: '여성시대', category: '회원전용' },
       { id: 'jjukbbang', name: '쭉빵', category: '회원전용' },
       { id: 'everytime', name: '에브리타임', category: '회원전용' },
@@ -38,7 +36,7 @@ const HomePage = () => {
     setSelectedSite(randomSite);
     
     // 백엔드에서 핫이슈 가져오기
-    fetchHotIssues(randomSite.id);
+    await fetchHotIssues(randomSite.id);
   };
 
   const fetchHotIssues = async (siteId) => {
@@ -48,7 +46,32 @@ const HomePage = () => {
       
       const response = await fetch(`${apiUrl}/api/hot-issues/${siteId}`);
       const data = await response.json();
-      setHotIssues(data);
+      
+      // 틱톡과 유튜브 쇼츠 각 1개씩 추가 (앱 내 뷰어로 열기)
+      const tiktok = {
+        id: 'tiktok-1',
+        title: '오늘의 틱톡 인기 영상 🎵',
+        source: '틱톡',
+        views: '-',
+        comments: '-',
+        thumbnail: 'https://via.placeholder.com/300x200?text=TikTok',
+        url: 'https://www.tiktok.com/ko-KR/',
+        type: 'community' // 앱 내 뷰어로 열기
+      };
+      
+      const youtubeShorts = {
+        id: 'shorts-1',
+        title: '유튜브 쇼츠 인기 영상 ▶️',
+        source: '유튜브 쇼츠',
+        views: '-',
+        comments: '-',
+        thumbnail: 'https://via.placeholder.com/300x200?text=YouTube+Shorts',
+        url: 'https://www.youtube.com/shorts/',
+        type: 'community' // 앱 내 뷰어로 열기
+      };
+      
+      // 데이터에 틱톡과 쇼츠 추가
+      setHotIssues([...data, tiktok, youtubeShorts]);
     } catch (error) {
       console.error('핫이슈 불러오기 실패:', error);
       // 에러 시 샘플 데이터 사용

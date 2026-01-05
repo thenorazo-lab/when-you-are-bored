@@ -104,19 +104,22 @@ const WebViewPage = () => {
 
   useEffect(() => {
     // currentUrl이 이미 설정되어 있으면 (localStorage에서 가져온 경우) 그대로 사용
-    const url = currentUrl || siteUrls[siteId];
-    const name = siteNames[siteId];
+    const url = currentUrl || siteUrls[siteId] || '';
+    const name = siteNames[siteId] || siteId;
     
     console.log('🔍 WebViewPage useEffect');
     console.log('  currentUrl (state):', currentUrl);
     console.log('  siteId:', siteId);
+    console.log('  siteUrls[siteId]:', siteUrls[siteId]);
     console.log('  final url:', url);
     
-    // state 업데이트 (currentUrl이 비어있을 때만)
-    if (!currentUrl) {
+    // state 업데이트
+    if (url && url !== currentUrl) {
       setCurrentUrl(url);
     }
-    setCurrentName(name);
+    if (name !== currentName) {
+      setCurrentName(name);
+    }
     
     // 방문 기록 저장
     if (url && name) {
@@ -142,7 +145,7 @@ const WebViewPage = () => {
         setTimeout(() => navigate('/'), 100);
       }
     }
-  }, [siteId, navigate]);
+  }, [siteId, currentUrl, currentName, navigate]);
 
   return (
     <div className="min-h-screen p-4">

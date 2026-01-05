@@ -53,11 +53,12 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
           const $link = $tr.find('td.li_sbj a[href*="read.html"]');
           
           if ($link.length > 0) {
-            const title = $link.text().trim().replace(/\s+/g, ' ');
+            // 제목 추출 (댓글 수 등 제거)
+            let title = $link.text().trim().replace(/\s+/g, ' ').replace(/\[\d+\]/g, '').trim();
             const href = $link.attr('href');
             const $tds = $tr.find('td');
-            const date = $tds.filter('.li_date').text().trim();
-            const views = $tds.filter('.li_und').first().text().trim();
+            const date = $tds.filter('.li_date').text().trim().replace(/\s+/g, ' ');
+            const views = $tds.eq(5).text().trim();
             
             // 썸네일 이미지 찾기
             let thumbnail = 'https://via.placeholder.com/300x200?text=웃긴대학';
@@ -410,8 +411,9 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
       try {
         console.log('🔍 개드립 크롤링 시작...');
         const response = await axios.get('https://www.dogdrip.net/', {
+          timeout: 10000,
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
           }
         });
@@ -419,33 +421,34 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
         const $ = cheerio.load(response.data);
         
         // 게시글 링크 수집 (숫자 ID가 있고 텍스트가 있는 링크만)
-        const postLinks = $('a[href*="/dogdrip/"]').filter((i, elem) => {
-          const href = $(elem).attr('href');
-          const text = $(elem).text().trim();
-          return href && href.match(/\/dogdrip\/\d+/) && text.length > 0;
-        });
-
-        postLinks.each((i, elem) => {
+        let count = 0;
+        $('a[href*="/dogdrip/"]').each((i, elem) => {
+          if (count >= 3) return false;
+          
           const $elem = $(elem);
-          const title = $elem.text().trim();
           const href = $elem.attr('href');
+          const title = $elem.text().trim();
+          
+          // 유효한 게시글 링크만 (숫자 ID, 제목 5자 이상)
+          if (href && href.match(/\/dogdrip\/\d+/) && title.length > 5) {
+            // URL에서 숫자 ID만 추출
+            const idMatch = href.match(/\/dogdrip\/(\d+)/);
+            const postId = idMatch ? idMatch[1] : '';
+            const cleanUrl = `https://www.dogdrip.net/dogdrip/${postId}`;
 
-          // URL에서 숫자 ID만 추출
-          const idMatch = href.match(/\/dogdrip\/(\d+)/);
-          const postId = idMatch ? idMatch[1] : '';
-          const cleanUrl = `https://www.dogdrip.net/dogdrip/${postId}`;
-
-          hotIssues.push({
-            title: title,
-            url: cleanUrl,
-            views: '0',
-            date: new Date().toISOString().split('T')[0],
-            author: '개드립',
-            replies: '0'
-          });
-
-          // 상위 10개만
-          if (hotIssues.length >= 10) return false;
+            hotIssues.push({
+              id: count + 1,
+              title: title.substring(0, 100),
+              source: '개드립',
+              views: '0',
+              comments: '0',
+              thumbnail: 'https://via.placeholder.com/300x200?text=개드립',
+              url: cleanUrl,
+              date: new Date().toISOString().split('T')[0]
+            });
+            count++;
+            console.log(`  ✅ [${count}] ${title.substring(0, 50)}...`);
+          }
         });
 
         console.log(`🎉 개드립 크롤링 성공: ${hotIssues.length}개 게시글`);
