@@ -1,26 +1,42 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Browser } from '@capacitor/browser';
+import { Capacitor } from '@capacitor/core';
 import { visitHistoryManager } from '../utils/visitHistory';
 
 const SiteGrid = ({ sites, categoryName }) => {
   const navigate = useNavigate();
   const [showAll, setShowAll] = useState(false);
 
-  const handleSiteClick = (e, site) => {
+  const handleSiteClick = async (e, site) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
     
     console.log('🎯 SiteGrid 클릭:', site.name, site.url);
-    console.log('  event type:', e ? e.type : 'no event');
-    console.log('  target:', e ? e.target.tagName : 'no target');
     
     try {
-      // 방문 기록 추가
-      visitHistoryManager.addVisit(site.id, site.name, categoryName);
+      // iframe 차단 사이트 목록
+      const blockedSites = ['mlbpark', 'everytime', 'blind', 'yosimdae', 'jjukbbang', 'dcinside', 'instiz'];
       
-      // navigate 실행
+      // 차단 사이트는 외부 브라우저로 열기
+      if (blockedSites.includes(site.id)) {
+        console.log('🌐 외부 브라우저로 열기:', site.url);
+        visitHistoryManager.addVisit(site.id, site.name, categoryName);
+        
+        if (Capacitor.isNativePlatform()) {
+          await Browser.open({ url: site.url });
+        } else {
+          window.open(site.url, '_blank');
+        }
+        return;
+      }
+      
+      // 일반 사이트는 앱 내 뷰어로
+      visitHistoryManager.addVisit(site.id, site.name, categoryName);
+      localStorage.setItem('currentArticleUrl', site.url);
+      console.log('✅ localStorage 저장:', site.url);
       console.log('🚀 navigate to /view/' + site.id);
       navigate(`/view/${site.id}`);
     } catch (error) {
@@ -84,6 +100,13 @@ const SiteGrid = ({ sites, categoryName }) => {
               }`} style={{ pointerEvents: 'none' }}>
                 {site.name}
               </h3>
+              
+              {/* 외부 브라우저 배지 */}
+              {site.badge && (
+                <div className="mt-1 text-[8px] text-orange-300 font-bold" style={{ pointerEvents: 'none' }}>
+                  🌐 {site.badge}
+                </div>
+              )}
             </button>
           );
         })}

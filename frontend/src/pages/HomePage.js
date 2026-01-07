@@ -15,13 +15,11 @@ const HomePage = () => {
   }, []);
 
   const selectRandomSiteAndFetchIssues = async () => {
-    // 크롤링 구현된 사이트만 표시 (앱 내에서 볼 수 있는 사이트만)
+    // 크롤링 구현된 사이트 중 앱 내 뷰어로 볼 수 있는 사이트만
     const crawlableSites = [
       { id: 'humoruniv', name: '웃긴대학', category: '커뮤니티' },
       { id: 'todayhumor', name: '오늘의유머', category: '커뮤니티' },
       { id: 'ppomppu', name: '뽐뿌', category: '커뮤니티' },
-      { id: 'dcinside', name: '디시인사이드', category: '커뮤니티' },
-      { id: 'instiz', name: '인스티즈', category: '커뮤니티' },
       { id: 'dogdrip', name: '개드립', category: '커뮤니티' },
       { id: 'natepann', name: '네이트판', category: '커뮤니티' },
       { id: 'shortform', name: '숏폼', category: '숏폼' },
@@ -80,21 +78,28 @@ const HomePage = () => {
     }
   };
 
-  const communities = [
+  // 앱 내 뷰어 가능 사이트
+  const communitiesInApp = [
     { id: 'humoruniv', name: '웃긴대학', url: 'https://m.humoruniv.com/board/list.html?table=pds', icon: '😄' },
     { id: 'todayhumor', name: '오늘의유머', url: 'https://www.todayhumor.co.kr/', icon: '😂' },
-    { id: 'mlbpark', name: 'MLBPARK', url: 'https://mlbpark.donga.com/mp/b.php?b=bullpen', icon: '⚾' },
     { id: 'ppomppu', name: '뽐뿌', url: 'https://www.ppomppu.co.kr/zboard/zboard.php?id=humor', icon: '💰' },
     { id: 'fmkorea', name: '에펨코리아', url: 'https://www.fmkorea.com/humor', icon: '🔥' },
-    { id: 'dcinside', name: '디시인사이드', url: 'https://www.dcinside.com/', icon: '💬' },
-    { id: 'instiz', name: '인스티즈', url: 'https://www.instiz.net/', icon: '✨' },
     { id: 'dogdrip', name: '개드립', url: 'https://www.dogdrip.net/', icon: '🐶' },
     { id: 'natepann', name: '네이트판', url: 'https://pann.nate.com/', icon: '💭' },
-    { id: 'yosimdae', name: '여성시대', url: 'https://cafe.daum.net/subdued20club', icon: '👩' },
-    { id: 'jjukbbang', name: '쭉빵', url: 'https://cafe.daum.net/ok1221', icon: '🍞' },
-    { id: 'everytime', name: '에브리타임', url: 'https://everytime.kr/', icon: '🎓' },
-    { id: 'blind', name: '블라인드', url: 'https://www.teamblind.com/kr/', icon: '🕶️' },
   ];
+
+  // 외부 브라우저 필요 사이트
+  const communitiesExternal = [
+    { id: 'mlbpark', name: 'MLBPARK', url: 'https://mlbpark.donga.com/mp/b.php?b=bullpen', icon: '⚾', badge: '외부 브라우저' },
+    { id: 'dcinside', name: '디시인사이드', url: 'https://www.dcinside.com/', icon: '💬', badge: '외부 브라우저' },
+    { id: 'instiz', name: '인스티즈', url: 'https://www.instiz.net/', icon: '✨', badge: '외부 브라우저' },
+    { id: 'yosimdae', name: '여성시대', url: 'https://cafe.daum.net/subdued20club', icon: '👩', badge: '외부 브라우저' },
+    { id: 'jjukbbang', name: '쭉빵', url: 'https://cafe.daum.net/ok1221', icon: '🍞', badge: '외부 브라우저' },
+    { id: 'everytime', name: '에브리타임', url: 'https://everytime.kr/', icon: '🎓', badge: '외부 브라우저' },
+    { id: 'blind', name: '블라인드', url: 'https://www.teamblind.com/kr/', icon: '🕶️', badge: '외부 브라우저' },
+  ];
+
+  const communities = [...communitiesInApp, ...communitiesExternal];
 
   const shortforms = [
     { id: 'tiktok', name: '틱톡', url: 'https://www.tiktok.com/ko-KR/', icon: '🎵' },
@@ -118,6 +123,12 @@ const HomePage = () => {
     { id: 'novelpia', name: '노벨피아', url: 'https://novelpia.com/', icon: '📗' },
     { id: 'blice', name: '블라이스', url: 'https://www.blice.co.kr/web/homescreen/main.kt?service=WEBNOVEL&genre=romance', icon: '📕' },
     { id: 'bookpal', name: '북팔', url: 'https://www.bookpal.co.kr/', icon: '📔' },
+  ];
+
+  const aiServices = [
+    { id: 'chatgpt', name: 'ChatGPT', url: 'https://chatgpt.com/', icon: '🤖' },
+    { id: 'claude', name: 'Claude', url: 'https://claude.ai/new', icon: '🧠' },
+    { id: 'wrtn', name: '뤼튼', url: 'https://wrtn.ai/', icon: '✨' },
   ];
 
   const games = [
@@ -205,6 +216,14 @@ const HomePage = () => {
           📖 웹소설
         </h2>
         <SiteGrid sites={novels} categoryName="웹소설" />
+      </section>
+
+      {/* AI 섹션 */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-bold text-white mb-4">
+          🤖 AI
+        </h2>
+        <SiteGrid sites={aiServices} categoryName="AI" />
       </section>
 
       {/* 게임 섹션 */}

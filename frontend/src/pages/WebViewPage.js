@@ -52,6 +52,10 @@ const WebViewPage = () => {
     'novelpia': 'https://novelpia.com/',
     'blice': 'https://www.blice.co.kr/web/homescreen/main.kt?service=WEBNOVEL&genre=romance',
     'bookpal': 'https://www.bookpal.co.kr/',
+    // AI
+    'chatgpt': 'https://chatgpt.com/',
+    'claude': 'https://claude.ai/new',
+    'wrtn': 'https://wrtn.ai/',
     // 웹게임
     'poki': 'https://poki.com/kr',
     'y8': 'https://ko.y8.com/',
@@ -92,6 +96,10 @@ const WebViewPage = () => {
     'novelpia': '노벨피아',
     'blice': '블라이스',
     'bookpal': '북팔',
+    // AI
+    'chatgpt': 'ChatGPT',
+    'claude': 'Claude',
+    'wrtn': '뤼튼',
     // 웹게임
     'poki': 'Poki',
     'y8': 'Y8게임',
@@ -104,7 +112,7 @@ const WebViewPage = () => {
     console.log('  siteId:', siteId);
     
     // iframe에서 차단되는 사이트는 처음부터 에러 표시
-    const blockedSites = ['mlbpark', 'everytime', 'blind', 'yosimdae', 'jjukbbang'];
+    const blockedSites = ['mlbpark', 'everytime', 'blind', 'yosimdae', 'jjukbbang', 'dcinside', 'instiz'];
     if (blockedSites.includes(siteId)) {
       setError(true);
       setCurrentName(siteNames[siteId] || siteId);
@@ -158,7 +166,7 @@ const WebViewPage = () => {
             style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
             title={currentName}
             onError={handleIframeError}
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads allow-top-navigation allow-top-navigation-by-user-activation allow-presentation allow-popups-to-escape-sandbox"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-downloads allow-top-navigation allow-top-navigation-by-user-activation"
             allow="payment; geolocation; microphone; camera; fullscreen"
             referrerPolicy="no-referrer"
           />
