@@ -73,7 +73,8 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
               }
               // 프록시를 통해 이미지 제공 (CORS 우회)
               if (imgSrc && imgSrc.startsWith('http')) {
-                thumbnail = `http://localhost:5000/api/image-proxy?url=${encodeURIComponent(imgSrc)}`;
+                const baseUrl = process.env.RENDER_EXTERNAL_URL || 'https://when-you-are-bored.onrender.com';
+                thumbnail = `${baseUrl}/api/image-proxy?url=${encodeURIComponent(imgSrc)}`;
               }
             }
             

@@ -37,8 +37,8 @@ const HomePage = () => {
 
   const fetchHotIssues = async (siteId) => {
     try {
-      // 모바일 앱용 PC IP 주소 사용
-      const apiUrl = 'http://192.168.219.113:5000';
+      // Render 클라우드 백엔드 사용
+      const apiUrl = 'https://when-you-are-bored.onrender.com';
       
       const response = await fetch(`${apiUrl}/api/hot-issues/${siteId}`);
       const data = await response.json();
