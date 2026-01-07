@@ -47,7 +47,7 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
         // 게시글 파싱
         let count = 0;
         $('table tr').each((index, element) => {
-          if (count >= 3) return false;
+          if (count >= 10) return false;
           
           const $tr = $(element);
           const $link = $tr.find('td.li_sbj a[href*="read.html"]');
@@ -385,12 +385,13 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
           const replies = replyMatch ? replyMatch[1] : '0';
           const cleanTitle = replyMatch ? title.replace(/\d+$/, '').trim() : title;
 
-          // URL에서 파라미터 제거
+          // URL에서 파라미터 제거 및 절대 경로로 변환
           const cleanUrl = href.split('?')[0];
+          const fullUrl = cleanUrl.startsWith('http') ? cleanUrl : `https://www.instiz.net${cleanUrl}`;
 
           hotIssues.push({
             title: cleanTitle,
-            url: cleanUrl,
+            url: fullUrl,
             views: '0',
             date: new Date().toISOString().split('T')[0],
             author: '인스티즈',
@@ -509,8 +510,46 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
       } catch (error) {
         console.error('❌네이트판 크롤링 실패:', error.message);
         hotIssues = getSampleData('네이트판');
-      }
-    } else if (siteId === 'tiktok') {
+      }    } else if (siteId === 'shortform') {
+      // 숏폼 - 틱톡 또는 유튜브 쇼츠 랜덤 선택
+      console.log('🎵 숏폼 콘텐츠 생성...');
+      const shortformOptions = [
+        {
+          type: 'tiktok',
+          categories: [
+            { title: '🔥 지금 핫한 틱톡', url: 'https://www.tiktok.com/ko-KR/', icon: '🔥' },
+            { title: '😂 웃긴 영상', url: 'https://www.tiktok.com/tag/funny', icon: '😂' },
+            { title: '💃 댄스 챌린지', url: 'https://www.tiktok.com/tag/dance', icon: '💃' },
+            { title: '🎵 인기 음악', url: 'https://www.tiktok.com/music', icon: '🎵' },
+          ]
+        },
+        {
+          type: 'youtube',
+          categories: [
+            { title: '🔥 지금 인기 쇼츠', url: 'https://www.youtube.com/shorts', icon: '🔥' },
+            { title: '😂 웃긴 쇼츠', url: 'https://www.youtube.com/hashtag/funny', icon: '😂' },
+            { title: '🎮 게임 쇼츠', url: 'https://www.youtube.com/hashtag/gaming', icon: '🎮' },
+            { title: '🎵 음악 쇼츠', url: 'https://www.youtube.com/hashtag/music', icon: '🎵' },
+          ]
+        }
+      ];
+      
+      // 랜덤으로 하나 선택
+      const selected = shortformOptions[Math.floor(Math.random() * shortformOptions.length)];
+      const sourceName = selected.type === 'tiktok' ? '틱톡' : '유튜브 쇼츠';
+      
+      hotIssues = selected.categories.map((cat, index) => ({
+        id: `${selected.type}-${index}`,
+        title: cat.title,
+        source: sourceName,
+        url: cat.url,
+        views: '인기',
+        comments: '-',
+        thumbnail: `https://via.placeholder.com/300x200?text=${encodeURIComponent(sourceName)}`,
+        date: new Date().toISOString().split('T')[0]
+      }));
+      
+      console.log(`🎉 숏폼(${sourceName}) 생성 완료: ${hotIssues.length}개 항목`);    } else if (siteId === 'tiktok') {
       // 틱톡 숏폼 - 인기 콘텐츠 카테고리 제공
       console.log('🎵 틱톡 숏폼 콘텐츠 생성...');
       const tiktokCategories = [

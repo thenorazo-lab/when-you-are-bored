@@ -9,17 +9,14 @@ const WebViewPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState(false);
   
-  // localStorage에서 저장된 게시글 URL 확인 (초기화 시 한 번만 실행)
-  const [currentUrl, setCurrentUrl] = useState(() => {
-    const savedArticleUrl = localStorage.getItem('currentArticleUrl');
-    if (savedArticleUrl) {
-      console.log('✅ localStorage에서 URL 가져옴:', savedArticleUrl);
-      localStorage.removeItem('currentArticleUrl');
-      return savedArticleUrl;
-    }
-    return '';
-  });
+  // iframe 로드 실패시 에러 메시지만 표시
+  const handleIframeError = () => {
+    console.log('❌ iframe 로드 실패');
+    setError(true);
+  };
   
+  // localStorage에서 저장된 게시글 URL 확인 (초기화 시 한 번만 실행)
+  const [currentUrl, setCurrentUrl] = useState('');
   const [currentName, setCurrentName] = useState('');
 
   const siteUrls = {
@@ -103,95 +100,92 @@ const WebViewPage = () => {
   };
 
   useEffect(() => {
-    // currentUrl이 이미 설정되어 있으면 (localStorage에서 가져온 경우) 그대로 사용
-    const url = currentUrl || siteUrls[siteId] || '';
+    console.log('🔍 WebViewPage useEffect 시작');
+    console.log('  siteId:', siteId);
+    
+    // iframe에서 차단되는 사이트는 처음부터 에러 표시
+    const blockedSites = ['mlbpark', 'everytime', 'blind', 'yosimdae', 'jjukbbang'];
+    if (blockedSites.includes(siteId)) {
+      setError(true);
+      setCurrentName(siteNames[siteId] || siteId);
+      setCurrentUrl(siteUrls[siteId] || '');
+      return;
+    }
+    
+    // 1. localStorage에서 먼저 확인 (핫이슈 클릭한 경우)
+    const savedArticleUrl = localStorage.getItem('currentArticleUrl');
+    if (savedArticleUrl) {
+      console.log('✅ localStorage에서 URL 가져옴:', savedArticleUrl);
+      localStorage.removeItem('currentArticleUrl');
+      setCurrentUrl(savedArticleUrl);
+      setCurrentName(siteNames[siteId] || siteId);
+      visitHistoryManager.recordVisit(siteId, siteNames[siteId] || siteId);
+      return;
+    }
+    
+    // 2. localStorage 없으면 siteUrls에서 가져오기 (박스 클릭한 경우)
+    const url = siteUrls[siteId];
     const name = siteNames[siteId] || siteId;
     
-    console.log('🔍 WebViewPage useEffect');
-    console.log('  currentUrl (state):', currentUrl);
-    console.log('  siteId:', siteId);
-    console.log('  siteUrls[siteId]:', siteUrls[siteId]);
-    console.log('  final url:', url);
+    console.log('📦 siteUrls에서 URL 가져옴:', url);
     
-    // state 업데이트
-    if (url && url !== currentUrl) {
+    if (url) {
       setCurrentUrl(url);
-    }
-    if (name !== currentName) {
       setCurrentName(name);
-    }
-    
-    // 방문 기록 저장
-    if (url && name) {
       visitHistoryManager.recordVisit(siteId, name);
     }
-    
-    // 모바일 앱에서는 항상 InAppBrowser 사용
-    if (url && Capacitor.isNativePlatform()) {
-      Browser.open({ 
-        url,
-        presentationStyle: 'popover',
-        toolbarColor: '#667eea',
-        windowName: '_blank'
-      });
-      Browser.addListener('browserFinished', () => {
-        navigate('/');
-      });
-    } else if (url && !Capacitor.isNativePlatform()) {
-      // 웹에서는 iframe 차단되는 사이트 자동 감지 후 외부 브라우저로 전환
-      const blockedSites = ['tiktok', 'instagram', 'youtube-shorts', 'everytime'];
-      if (blockedSites.some(site => siteId.includes(site))) {
-        window.open(url, '_blank');
-        setTimeout(() => navigate('/'), 100);
-      }
-    }
-  }, [siteId, currentUrl, currentName, navigate]);
+  }, [siteId]);
 
   return (
-    <div className="min-h-screen p-4">
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', margin: 0, padding: 0 }}>
       {/* 헤더 */}
-      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 mb-4 flex items-center justify-between">
+      <div className="bg-white/10 backdrop-blur-md p-3 flex items-center justify-between" style={{ flexShrink: 0 }}>
         <button 
           onClick={() => navigate('/')}
-          className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-all"
+          className="bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-lg transition-all text-sm"
         >
           ← 뒤로가기
         </button>
-        <h1 className="text-white font-bold text-xl">{currentName}</h1>
+        <h1 className="text-white font-bold text-base">{currentName}</h1>
         <div className="w-20"></div>
       </div>
 
       {/* iframe 웹뷰 */}
-      <div className="bg-white rounded-xl shadow-2xl overflow-hidden" style={{ height: 'calc(100vh - 120px)' }}>
+      <div style={{ flex: 1, backgroundColor: 'white', overflow: 'hidden', width: '100%', height: 'calc(100vh - 60px)' }}>
         {!error ? (
           <iframe
             src={currentUrl}
-            className="w-full h-full"
+            style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
             title={currentName}
-            onError={() => setError(true)}
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-storage-access-by-user-activation"
-            allow="payment; geolocation; microphone; camera"
+            onError={handleIframeError}
+            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads allow-top-navigation allow-top-navigation-by-user-activation allow-presentation allow-popups-to-escape-sandbox"
+            allow="payment; geolocation; microphone; camera; fullscreen"
+            referrerPolicy="no-referrer"
           />
         ) : (
           <div className="flex flex-col items-center justify-center h-full p-8">
             <div className="text-6xl mb-4">🚫</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              이 사이트는 웹에서 열 수 없습니다
+            <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">
+              이 사이트는 앱 내에서 볼 수 없습니다
             </h2>
             <p className="text-gray-600 mb-2 text-center">
-              보안 정책상 iframe에서 차단되었습니다.
+              {currentName}은(는) 보안 정책상 앱 내 화면에서 차단됩니다.
             </p>
-            <p className="text-purple-600 font-bold mb-6 text-center">
-              💡 모바일 앱으로 빌드하면 앱 내에서 열립니다!
+            <p className="text-blue-600 font-bold mb-6 text-center">
+              💡 아래 버튼을 눌러 브라우저에서 열어주세요!
             </p>
             <button
-              onClick={() => {
-                window.open(currentUrl, '_blank');
+              onClick={async () => {
+                if (Capacitor.isNativePlatform()) {
+                  await Browser.open({ url: currentUrl });
+                } else {
+                  window.open(currentUrl, '_blank');
+                }
                 navigate('/');
               }}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
             >
-              외부 브라우저로 열기 →
+              브라우저로 열기 →
             </button>
           </div>
         )}

@@ -15,20 +15,16 @@ const HomePage = () => {
   }, []);
 
   const selectRandomSiteAndFetchIssues = async () => {
-    // 크롤링 구현된 사이트만 표시 (구현 완료 시 추가)
+    // 크롤링 구현된 사이트만 표시 (앱 내에서 볼 수 있는 사이트만)
     const crawlableSites = [
       { id: 'humoruniv', name: '웃긴대학', category: '커뮤니티' },
       { id: 'todayhumor', name: '오늘의유머', category: '커뮤니티' },
-      { id: 'mlbpark', name: 'MLBPARK', category: '커뮤니티' },
       { id: 'ppomppu', name: '뽐뿌', category: '커뮤니티' },
       { id: 'dcinside', name: '디시인사이드', category: '커뮤니티' },
       { id: 'instiz', name: '인스티즈', category: '커뮤니티' },
       { id: 'dogdrip', name: '개드립', category: '커뮤니티' },
       { id: 'natepann', name: '네이트판', category: '커뮤니티' },
-      { id: 'yosimdae', name: '여성시대', category: '회원전용' },
-      { id: 'jjukbbang', name: '쭉빵', category: '회원전용' },
-      { id: 'everytime', name: '에브리타임', category: '회원전용' },
-      { id: 'blind', name: '블라인드', category: '회원전용' },
+      { id: 'shortform', name: '숏폼', category: '숏폼' },
     ];
     
     // 랜덤 선택
@@ -41,37 +37,12 @@ const HomePage = () => {
 
   const fetchHotIssues = async (siteId) => {
     try {
-      // 환경 변수에서 API URL 가져오기 (배포 시 자동 설정)
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      // 모바일 앱용 PC IP 주소 사용
+      const apiUrl = 'http://192.168.219.113:5000';
       
       const response = await fetch(`${apiUrl}/api/hot-issues/${siteId}`);
       const data = await response.json();
-      
-      // 틱톡과 유튜브 쇼츠 각 1개씩 추가 (앱 내 뷰어로 열기)
-      const tiktok = {
-        id: 'tiktok-1',
-        title: '오늘의 틱톡 인기 영상 🎵',
-        source: '틱톡',
-        views: '-',
-        comments: '-',
-        thumbnail: 'https://via.placeholder.com/300x200?text=TikTok',
-        url: 'https://www.tiktok.com/ko-KR/',
-        type: 'community' // 앱 내 뷰어로 열기
-      };
-      
-      const youtubeShorts = {
-        id: 'shorts-1',
-        title: '유튜브 쇼츠 인기 영상 ▶️',
-        source: '유튜브 쇼츠',
-        views: '-',
-        comments: '-',
-        thumbnail: 'https://via.placeholder.com/300x200?text=YouTube+Shorts',
-        url: 'https://www.youtube.com/shorts/',
-        type: 'community' // 앱 내 뷰어로 열기
-      };
-      
-      // 데이터에 틱톡과 쇼츠 추가
-      setHotIssues([...data, tiktok, youtubeShorts]);
+      setHotIssues(data);
     } catch (error) {
       console.error('핫이슈 불러오기 실패:', error);
       // 에러 시 샘플 데이터 사용
