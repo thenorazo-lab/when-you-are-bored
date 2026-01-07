@@ -34,7 +34,11 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
         const response = await axios.get('http://web.humoruniv.com/board/humor/list.html?table=pds&pg=1', {
           timeout: 30000,
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Referer': 'http://web.humoruniv.com/board/humor/list.html?table=pds&pg=1',
+            'Cache-Control': 'no-cache'
           },
           responseType: 'arraybuffer',
           validateStatus: function (status) {
@@ -427,6 +431,9 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Referer': 'https://www.dogdrip.net/',
+            'Cache-Control': 'no-cache'
           },
           validateStatus: function (status) {
             return status < 500;
@@ -726,6 +733,20 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
 
 // 샘플 데이터 생성 함수
 function getSampleData(siteName) {
+  const siteUrlMap = {
+    '웃긴대학': 'https://m.humoruniv.com/board/list.html?table=pds',
+    '오늘의유머': 'https://www.todayhumor.co.kr/board/list.php?table=bestofbest',
+    'MLBPARK': 'https://mlbpark.donga.com/mp/b.php?m=list&b=bullpen',
+    '뽐뿌': 'https://www.ppomppu.co.kr/zboard/zboard.php?id=humor',
+    '에펨코리아': 'https://www.fmkorea.com/humor',
+    '디시인사이드': 'https://gall.dcinside.com/board/lists/?id=dcbest',
+    '인스티즈': 'https://www.instiz.net/pt/0',
+    '개드립': 'https://www.dogdrip.net/',
+    '네이트판': 'https://pann.nate.com/',
+  };
+
+  const fallbackUrl = siteUrlMap[siteName] || 'https://www.google.com';
+
   const samples = [];
   for (let i = 1; i <= 3; i++) {
     samples.push({
@@ -735,7 +756,7 @@ function getSampleData(siteName) {
       views: `${Math.floor(Math.random() * 5) + 1}.${Math.floor(Math.random() * 9)}k`,
       comments: Math.floor(Math.random() * 100) + 10,
       thumbnail: `https://via.placeholder.com/300x200?text=${encodeURIComponent(siteName)}`,
-      url: '#'
+      url: fallbackUrl
     });
   }
   return samples;

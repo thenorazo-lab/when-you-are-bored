@@ -166,7 +166,7 @@ const WebViewPage = () => {
             style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
             title={currentName}
             onError={handleIframeError}
-            sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-downloads allow-top-navigation allow-top-navigation-by-user-activation"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-downloads allow-top-navigation allow-top-navigation-by-user-activation allow-popups"
             allow="payment; geolocation; microphone; camera; fullscreen"
             referrerPolicy="no-referrer"
           />

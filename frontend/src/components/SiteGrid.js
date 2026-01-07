@@ -23,7 +23,7 @@ const SiteGrid = ({ sites, categoryName }) => {
       // 차단 사이트는 외부 브라우저로 열기
       if (blockedSites.includes(site.id)) {
         console.log('🌐 외부 브라우저로 열기:', site.url);
-        visitHistoryManager.addVisit(site.id, site.name, categoryName);
+        visitHistoryManager.recordVisit(site.id, site.name);
         
         if (Capacitor.isNativePlatform()) {
           await Browser.open({ url: site.url });
@@ -34,7 +34,7 @@ const SiteGrid = ({ sites, categoryName }) => {
       }
       
       // 일반 사이트는 앱 내 뷰어로
-      visitHistoryManager.addVisit(site.id, site.name, categoryName);
+      visitHistoryManager.recordVisit(site.id, site.name);
       localStorage.setItem('currentArticleUrl', site.url);
       console.log('✅ localStorage 저장:', site.url);
       console.log('🚀 직접 이동 to /#/view/' + site.id);
