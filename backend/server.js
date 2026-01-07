@@ -32,11 +32,14 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
       try {
         const iconv = require('iconv-lite');
         const response = await axios.get('http://web.humoruniv.com/board/humor/list.html?table=pds&pg=1', {
-          timeout: 10000,
+          timeout: 30000,
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
           },
-          responseType: 'arraybuffer'
+          responseType: 'arraybuffer',
+          validateStatus: function (status) {
+            return status < 500;
+          }
         });
         
         // EUC-KR 인코딩 처리
@@ -99,6 +102,7 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
         console.log(`🎉 웃긴대학 크롤링 성공: ${hotIssues.length}개 게시글`);
       } catch (error) {
         console.error('❌ 웃긴대학 크롤링 실패:', error.message);
+        console.error('   상세:', error.response?.status, error.code);
         // 크롤링 실패 시 샘플 데이터
         hotIssues = getSampleData('웃긴대학');
       }
@@ -413,10 +417,13 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
       try {
         console.log('🔍 개드립 크롤링 시작...');
         const response = await axios.get('https://www.dogdrip.net/', {
-          timeout: 10000,
+          timeout: 30000,
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          },
+          validateStatus: function (status) {
+            return status < 500;
           }
         });
 
@@ -425,7 +432,7 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
         // 게시글 링크 수집 (숫자 ID가 있고 텍스트가 있는 링크만)
         let count = 0;
         $('a[href*="/dogdrip/"]').each((i, elem) => {
-          if (count >= 3) return false;
+          if (count >= 10) return false;
           
           const $elem = $(elem);
           const href = $elem.attr('href');
@@ -456,6 +463,7 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
         console.log(`🎉 개드립 크롤링 성공: ${hotIssues.length}개 게시글`);
       } catch (error) {
         console.error('❌ 개드립 크롤링 실패:', error.message);
+        console.error('   상세:', error.response?.status, error.code);
         hotIssues = getSampleData('개드립');
       }
     } else if (siteId === 'natepann') {
