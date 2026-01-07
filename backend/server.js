@@ -100,11 +100,17 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
         });
         
         console.log(`🎉 웃긴대학 크롤링 성공: ${hotIssues.length}개 게시글`);
+        
+        // 크롤링 실패 시 빈 배열 (샘플 데이터 제거)
+        if (hotIssues.length === 0) {
+          console.error('⚠️ 웃긴대학: 파싱된 게시글이 0개입니다');
+        }
       } catch (error) {
         console.error('❌ 웃긴대학 크롤링 실패:', error.message);
-        console.error('   상세:', error.response?.status, error.code);
-        // 크롤링 실패 시 샘플 데이터
-        hotIssues = getSampleData('웃긴대학');
+        console.error('   상세:', error.response?.status, error.response?.statusText, error.code);
+        console.error('   Stack:', error.stack);
+        // 실패 시 빈 배열 반환 (샘플 데이터 제거)
+        hotIssues = [];
       }
     } else if (siteId === 'todayhumor') {
       // 오늘의유머 크롤링
@@ -461,10 +467,15 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
         });
 
         console.log(`🎉 개드립 크롤링 성공: ${hotIssues.length}개 게시글`);
+        
+        if (hotIssues.length === 0) {
+          console.error('⚠️ 개드립: 파싱된 게시글이 0개입니다');
+        }
       } catch (error) {
         console.error('❌ 개드립 크롤링 실패:', error.message);
-        console.error('   상세:', error.response?.status, error.code);
-        hotIssues = getSampleData('개드립');
+        console.error('   상세:', error.response?.status, error.response?.statusText, error.code);
+        console.error('   Stack:', error.stack);
+        hotIssues = [];
       }
     } else if (siteId === 'natepann') {
       // 네이트판 크롤링

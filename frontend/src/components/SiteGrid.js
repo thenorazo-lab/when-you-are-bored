@@ -37,8 +37,10 @@ const SiteGrid = ({ sites, categoryName }) => {
       visitHistoryManager.addVisit(site.id, site.name, categoryName);
       localStorage.setItem('currentArticleUrl', site.url);
       console.log('✅ localStorage 저장:', site.url);
-      console.log('🚀 navigate to /view/' + site.id);
-      navigate(`/view/${site.id}`);
+      console.log('🚀 직접 이동 to /#/view/' + site.id);
+      
+      // navigate 대신 직접 URL 변경
+      window.location.hash = `/view/${site.id}`;
     } catch (error) {
       console.error('❌ 클릭 에러:', error);
     }

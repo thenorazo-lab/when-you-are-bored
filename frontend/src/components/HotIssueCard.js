@@ -15,8 +15,8 @@ const HotIssueCard = ({ issue, siteId }) => {
       localStorage.setItem('currentArticleUrl', issue.url);
       console.log('✅ localStorage 저장 완료:', issue.url);
       
-      // WebViewPage로 이동
-      navigate(`/view/${siteId}`);
+      // 직접 URL 변경
+      window.location.hash = `/view/${siteId}`;
     }
   };
 
