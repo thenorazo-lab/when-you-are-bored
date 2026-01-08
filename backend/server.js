@@ -473,13 +473,57 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
 
         console.log(`🎉 개드립 크롤링 성공: ${hotIssues.length}개 게시글`);
         if (hotIssues.length === 0) {
-          console.error('⚠️ 개드립: 파싱된 게시글이 0개입니다');
+          console.error('⚠️ 개드립: 파싱된 게시글이 0개입니다 (1차)');
         }
       } catch (error) {
-        console.error('❌ 개드립 크롤링 실패:', error.message);
+        console.error('❌ 개드립 크롤링 실패 (1차):', error.message);
         console.error('   상세:', error.response?.status, error.response?.statusText, error.code);
         console.error('   Stack:', error.stack);
-        hotIssues = [];
+      }
+
+      // 1차에서 결과가 없으면 r.jina.ai 미러 폴백 (Cloudflare 등 회피용)
+      if (hotIssues.length === 0) {
+        try {
+          console.log('🪞 개드립 r.jina.ai 미러 폴백 시도...');
+          const mirrorUrl = 'https://r.jina.ai/http://www.dogdrip.net/dogdrip?sort_index=popular';
+          const { data: text } = await axios.get(mirrorUrl, {
+            timeout: 20000,
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'text/plain; charset=utf-8',
+              'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7'
+            }
+          });
+
+          const seen = new Set();
+          const results = [];
+          const regex = /\[([^\]]{3,}?)\]\((https?:\/\/www\.dogdrip\.net\/dogdrip\/(\d+)[^)]*)\)/g;
+          let m;
+          while ((m = regex.exec(text)) !== null && results.length < 10) {
+            const title = m[1].trim().replace(/\s+/g, ' ');
+            const url = m[2].replace(/\)?$/, '');
+            const id = m[3];
+            if (!seen.has(id) && title.length > 2) {
+              seen.add(id);
+              results.push({ title, url });
+            }
+          }
+
+          hotIssues = results.map((it, idx) => ({
+            id: idx + 1,
+            title: it.title.substring(0, 100),
+            source: '개드립',
+            views: '인기',
+            comments: '-',
+            thumbnail: 'https://via.placeholder.com/300x200?text=개드립',
+            url: it.url,
+            date: new Date().toISOString().split('T')[0]
+          }));
+
+          console.log(`✅ 개드립 미러 폴백 성공: ${hotIssues.length}개 게시글`);
+        } catch (fallbackErr) {
+          console.error('❌ 개드립 미러 폴백 실패:', fallbackErr.message);
+        }
       }
     } else if (siteId === 'natepann') {
       // 네이트판 크롤링
