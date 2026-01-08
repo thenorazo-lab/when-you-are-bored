@@ -112,7 +112,20 @@ const WebViewPage = () => {
     console.log('  siteId:', siteId);
     
     // iframe에서 차단되는 사이트는 처음부터 에러 표시
-    const blockedSites = ['mlbpark', 'everytime', 'blind', 'yosimdae', 'jjukbbang', 'dcinside', 'instiz'];
+    const blockedSites = [
+      // 커뮤니티 (외부)
+      'mlbpark', 'everytime', 'blind', 'yosimdae', 'jjukbbang', 'dcinside', 'instiz',
+      // 숏폼
+      'tiktok', 'youtube-shorts',
+      // 웹툰
+      'naver-webtoon', 'kakao-webtoon', 'lezhin', 'ridi-webtoon', 'toomics', 'comico',
+      // 웹소설
+      'munpia', 'kakaopage', 'naver-series', 'ridibooks', 'novelpia', 'blice', 'bookpal',
+      // AI
+      'chatgpt', 'claude', 'wrtn',
+      // 웹게임
+      'poki', 'y8', 'crazygames', 'miniclip'
+    ];
     if (blockedSites.includes(siteId)) {
       setError(true);
       setCurrentName(siteNames[siteId] || siteId);
@@ -125,7 +138,25 @@ const WebViewPage = () => {
     if (savedArticleUrl) {
       console.log('✅ localStorage에서 URL 가져옴:', savedArticleUrl);
       localStorage.removeItem('currentArticleUrl');
-      setCurrentUrl(savedArticleUrl);
+      // URL 정규화: 웃긴대학 등 HTTP → HTTPS 모바일 도메인 변환
+      const normalizeUrl = (id, url) => {
+        try {
+          if (id === 'humoruniv') {
+            return url
+              .replace('http://web.humoruniv.com/board/humor/', 'https://m.humoruniv.com/board/')
+              .replace('http://', 'https://');
+          }
+          // 일반적인 HTTP는 가능하면 HTTPS로 승격
+          if (url.startsWith('http://')) {
+            return 'https://' + url.substring('http://'.length);
+          }
+          return url;
+        } catch {
+          return url;
+        }
+      };
+      const finalUrl = normalizeUrl(siteId, savedArticleUrl);
+      setCurrentUrl(finalUrl);
       setCurrentName(siteNames[siteId] || siteId);
       visitHistoryManager.recordVisit(siteId, siteNames[siteId] || siteId);
       return;
@@ -138,7 +169,21 @@ const WebViewPage = () => {
     console.log('📦 siteUrls에서 URL 가져옴:', url);
     
     if (url) {
-      setCurrentUrl(url);
+      const normalizeUrl = (id, u) => {
+        try {
+          if (id === 'humoruniv') {
+            return u.replace('http://', 'https://');
+          }
+          if (u.startsWith('http://')) {
+            return 'https://' + u.substring('http://'.length);
+          }
+          return u;
+        } catch {
+          return u;
+        }
+      };
+      const finalUrl = normalizeUrl(siteId, url);
+      setCurrentUrl(finalUrl);
       setCurrentName(name);
       visitHistoryManager.recordVisit(siteId, name);
     }

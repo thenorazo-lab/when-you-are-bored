@@ -102,40 +102,40 @@ const HomePage = () => {
   const communities = [...communitiesInApp, ...communitiesExternal];
 
   const shortforms = [
-    { id: 'tiktok', name: '틱톡', url: 'https://www.tiktok.com/ko-KR/', icon: '🎵' },
-    { id: 'youtube-shorts', name: '유튜브 쇼츠', url: 'https://www.youtube.com/shorts/tV5XZE38xvU', icon: '▶️' },
+    { id: 'tiktok', name: '틱톡', url: 'https://www.tiktok.com/ko-KR/', icon: '🎵', badge: '외부 브라우저' },
+    { id: 'youtube-shorts', name: '유튜브 쇼츠', url: 'https://www.youtube.com/shorts/tV5XZE38xvU', icon: '▶️', badge: '외부 브라우저' },
   ];
 
   const webtoons = [
-    { id: 'naver-webtoon', name: '네이버웹툰', url: 'https://comic.naver.com/index', icon: '📗' },
-    { id: 'kakao-webtoon', name: '카카오웹툰', url: 'https://webtoon.kakao.com/', icon: '📙' },
-    { id: 'lezhin', name: '레진코믹스', url: 'https://www.lezhin.com/ko', icon: '📕' },
-    { id: 'ridi-webtoon', name: '리디웹툰', url: 'https://ridibooks.com/webtoon/recommendation', icon: '📘' },
-    { id: 'toomics', name: '투믹스', url: 'https://www.toomics.com/', icon: '📔' },
-    { id: 'comico', name: '코미코', url: 'https://www.comico.jp/', icon: '📒' },
+    { id: 'naver-webtoon', name: '네이버웹툰', url: 'https://comic.naver.com/index', icon: '📗', badge: '외부 브라우저' },
+    { id: 'kakao-webtoon', name: '카카오웹툰', url: 'https://webtoon.kakao.com/', icon: '📙', badge: '외부 브라우저' },
+    { id: 'lezhin', name: '레진코믹스', url: 'https://www.lezhin.com/ko', icon: '📕', badge: '외부 브라우저' },
+    { id: 'ridi-webtoon', name: '리디웹툰', url: 'https://ridibooks.com/webtoon/recommendation', icon: '📘', badge: '외부 브라우저' },
+    { id: 'toomics', name: '투믹스', url: 'https://www.toomics.com/', icon: '📔', badge: '외부 브라우저' },
+    { id: 'comico', name: '코미코', url: 'https://www.comico.jp/', icon: '📒', badge: '외부 브라우저' },
   ];
 
   const novels = [
-    { id: 'munpia', name: '문피아', url: 'https://www.munpia.com/', icon: '📚' },
-    { id: 'kakaopage', name: '카카오페이지', url: 'https://page.kakao.com/', icon: '📖' },
-    { id: 'naver-series', name: '네이버시리즈', url: 'https://series.naver.com/novel/home.series', icon: '📘' },
-    { id: 'ridibooks', name: '리디북스', url: 'https://ridibooks.com/romance/webnovel', icon: '📙' },
-    { id: 'novelpia', name: '노벨피아', url: 'https://novelpia.com/', icon: '📗' },
-    { id: 'blice', name: '블라이스', url: 'https://www.blice.co.kr/web/homescreen/main.kt?service=WEBNOVEL&genre=romance', icon: '📕' },
-    { id: 'bookpal', name: '북팔', url: 'https://www.bookpal.co.kr/', icon: '📔' },
+    { id: 'munpia', name: '문피아', url: 'https://www.munpia.com/', icon: '📚', badge: '외부 브라우저' },
+    { id: 'kakaopage', name: '카카오페이지', url: 'https://page.kakao.com/', icon: '📖', badge: '외부 브라우저' },
+    { id: 'naver-series', name: '네이버시리즈', url: 'https://series.naver.com/novel/home.series', icon: '📘', badge: '외부 브라우저' },
+    { id: 'ridibooks', name: '리디북스', url: 'https://ridibooks.com/romance/webnovel', icon: '📙', badge: '외부 브라우저' },
+    { id: 'novelpia', name: '노벨피아', url: 'https://novelpia.com/', icon: '📗', badge: '외부 브라우저' },
+    { id: 'blice', name: '블라이스', url: 'https://www.blice.co.kr/web/homescreen/main.kt?service=WEBNOVEL&genre=romance', icon: '📕', badge: '외부 브라우저' },
+    { id: 'bookpal', name: '북팔', url: 'https://www.bookpal.co.kr/', icon: '📔', badge: '외부 브라우저' },
   ];
 
   const aiServices = [
-    { id: 'chatgpt', name: 'ChatGPT', url: 'https://chatgpt.com/', icon: '🤖' },
-    { id: 'claude', name: 'Claude', url: 'https://claude.ai/new', icon: '🧠' },
-    { id: 'wrtn', name: '뤼튼', url: 'https://wrtn.ai/', icon: '✨' },
+    { id: 'chatgpt', name: 'ChatGPT', url: 'https://chatgpt.com/', icon: '🤖', badge: '외부 브라우저' },
+    { id: 'claude', name: 'Claude', url: 'https://claude.ai/new', icon: '🧠', badge: '외부 브라우저' },
+    { id: 'wrtn', name: '뤼튼', url: 'https://wrtn.ai/', icon: '✨', badge: '외부 브라우저' },
   ];
 
   const games = [
-    { id: 'poki', name: 'Poki', url: 'https://poki.com/kr', icon: '🎮' },
-    { id: 'y8', name: 'Y8게임', url: 'https://ko.y8.com/', icon: '🕹️' },
-    { id: 'crazygames', name: 'Crazy Games', url: 'https://www.crazygames.com/', icon: '🎯' },
-    { id: 'miniclip', name: 'Miniclip', url: 'https://miniclip.com/', icon: '🎲' },
+    { id: 'poki', name: 'Poki', url: 'https://poki.com/kr', icon: '🎮', badge: '외부 브라우저' },
+    { id: 'y8', name: 'Y8게임', url: 'https://ko.y8.com/', icon: '🕹️', badge: '외부 브라우저' },
+    { id: 'crazygames', name: 'Crazy Games', url: 'https://www.crazygames.com/', icon: '🎯', badge: '외부 브라우저' },
+    { id: 'miniclip', name: 'Miniclip', url: 'https://miniclip.com/', icon: '🎲', badge: '외부 브라우저' },
   ];
 
   return (

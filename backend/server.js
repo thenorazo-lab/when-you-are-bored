@@ -86,7 +86,10 @@ app.get('/api/hot-issues/:siteId', async (req, res) => {
             }
             
             if (title && href) {
-              const fullUrl = href.startsWith('http') ? href : `http://web.humoruniv.com/board/humor/${href}`;
+              // 모바일 도메인으로 HTTPS 전환 (HTTP 차단 회피)
+              const fullUrl = href.startsWith('http')
+                ? href.replace('http://web.humoruniv.com/board/humor/', 'https://m.humoruniv.com/board/')
+                : `https://m.humoruniv.com/board/${href}`;
               hotIssues.push({
                 id: count + 1,
                 title: title.substring(0, 100), // 제목 길이 제한
