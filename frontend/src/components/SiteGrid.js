@@ -18,7 +18,19 @@ const SiteGrid = ({ sites, categoryName }) => {
     
     try {
       // iframe 차단 사이트 목록
-      const blockedSites = ['mlbpark', 'everytime', 'blind', 'yosimdae', 'jjukbbang', 'dcinside', 'instiz'];
+      const blockedSites = [
+        'mlbpark','everytime','blind','yosimdae','jjukbbang','dcinside','instiz',
+        // 숏폼
+        'tiktok','youtube-shorts',
+        // 웹툰
+        'naver-webtoon','kakao-webtoon','lezhin','ridi-webtoon','toomics','comico',
+        // 웹소설
+        'munpia','kakaopage','naver-series','ridibooks','novelpia','blice','bookpal',
+        // AI
+        'chatgpt','claude','wrtn',
+        // 웹게임
+        'poki','y8','crazygames','miniclip'
+      ];
       
       // 차단 사이트는 외부 브라우저로 열기
       if (blockedSites.includes(site.id)) {

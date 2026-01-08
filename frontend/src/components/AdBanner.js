@@ -14,11 +14,7 @@ const AdBanner = ({ position = 'top' }) => {
     const initializeAdMob = async () => {
       if (Capacitor.isNativePlatform()) {
         try {
-          await AdMob.initialize({
-            requestTrackingAuthorization: true,
-            testingDevices: ['YOUR_TEST_DEVICE_ID'], // 실제 기기 테스트용
-            initializeForTesting: false, // 실제 광고 표시
-          });
+          await AdMob.initialize();
           console.log('✅ AdMob 초기화 성공');
           setAdInitialized(true);
         } catch (error) {
@@ -49,7 +45,9 @@ const AdBanner = ({ position = 'top' }) => {
 
       // 배너 광고 표시
       await AdMob.showBanner({
-        adId: 'ca-app-pub-1120357008550196/9792898335', // 실제 광고 단위 ID
+        // 테스트 기기에서도 확실히 노출되도록 구글 테스트 단위 아이디 사용 (안드로이드)
+        adUnitId: 'ca-app-pub-3940256099942544/6300978111',
+        adId: 'ca-app-pub-3940256099942544/6300978111',
         adSize: BannerAdSize.BANNER, // 320x50
         position: position === 'top' ? BannerAdPosition.TOP_CENTER : BannerAdPosition.BOTTOM_CENTER,
         margin: 0,

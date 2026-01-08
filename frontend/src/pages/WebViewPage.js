@@ -22,12 +22,12 @@ const WebViewPage = () => {
   const siteUrls = {
     // 커뮤니티
     'humoruniv': 'https://m.humoruniv.com/board/list.html?table=pds',
-    'todayhumor': 'https://www.todayhumor.co.kr/',
+    'todayhumor': 'https://m.todayhumor.co.kr/list.php?table=bestofbest',
     'mlbpark': 'https://mlbpark.donga.com/mp/b.php?b=bullpen',
     'ppomppu': 'https://www.ppomppu.co.kr/zboard/zboard.php?id=humor',
     'fmkorea': 'https://www.fmkorea.com/humor',
     'dcinside': 'https://www.dcinside.com/',
-    'instiz': 'https://www.instiz.net/',
+    'instiz': 'https://www.instiz.net/hot.htm',
     'dogdrip': 'https://www.dogdrip.net/',
     'natepann': 'https://pann.nate.com/',
     'yosimdae': 'https://cafe.daum.net/subdued20club',

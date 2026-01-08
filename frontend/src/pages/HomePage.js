@@ -22,7 +22,6 @@ const HomePage = () => {
       { id: 'ppomppu', name: '뽐뿌', category: '커뮤니티' },
       { id: 'dogdrip', name: '개드립', category: '커뮤니티' },
       { id: 'natepann', name: '네이트판', category: '커뮤니티' },
-      { id: 'shortform', name: '숏폼', category: '숏폼' },
     ];
     
     // 랜덤 선택
@@ -81,7 +80,7 @@ const HomePage = () => {
   // 앱 내 뷰어 가능 사이트
   const communitiesInApp = [
     { id: 'humoruniv', name: '웃긴대학', url: 'https://m.humoruniv.com/board/list.html?table=pds', icon: '😄' },
-    { id: 'todayhumor', name: '오늘의유머', url: 'https://www.todayhumor.co.kr/', icon: '😂' },
+    { id: 'todayhumor', name: '오늘의유머', url: 'https://m.todayhumor.co.kr/list.php?table=bestofbest', icon: '😂' },
     { id: 'ppomppu', name: '뽐뿌', url: 'https://www.ppomppu.co.kr/zboard/zboard.php?id=humor', icon: '💰' },
     { id: 'fmkorea', name: '에펨코리아', url: 'https://www.fmkorea.com/humor', icon: '🔥' },
     { id: 'dogdrip', name: '개드립', url: 'https://www.dogdrip.net/', icon: '🐶' },
@@ -92,7 +91,7 @@ const HomePage = () => {
   const communitiesExternal = [
     { id: 'mlbpark', name: 'MLBPARK', url: 'https://mlbpark.donga.com/mp/b.php?b=bullpen', icon: '⚾', badge: '외부 브라우저' },
     { id: 'dcinside', name: '디시인사이드', url: 'https://www.dcinside.com/', icon: '💬', badge: '외부 브라우저' },
-    { id: 'instiz', name: '인스티즈', url: 'https://www.instiz.net/', icon: '✨', badge: '외부 브라우저' },
+    { id: 'instiz', name: '인스티즈', url: 'https://www.instiz.net/hot.htm', icon: '✨', badge: '외부 브라우저' },
     { id: 'yosimdae', name: '여성시대', url: 'https://cafe.daum.net/subdued20club', icon: '👩', badge: '외부 브라우저' },
     { id: 'jjukbbang', name: '쭉빵', url: 'https://cafe.daum.net/ok1221', icon: '🍞', badge: '외부 브라우저' },
     { id: 'everytime', name: '에브리타임', url: 'https://everytime.kr/', icon: '🎓', badge: '외부 브라우저' },
