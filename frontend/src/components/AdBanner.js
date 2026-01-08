@@ -14,6 +14,7 @@ const AdBanner = ({ position = 'top' }) => {
     const initializeAdMob = async () => {
       if (Capacitor.isNativePlatform()) {
         try {
+          // 실제 운영용 초기화 (Android는 Manifest의 App ID 사용)
           await AdMob.initialize();
           console.log('✅ AdMob 초기화 성공');
           setAdInitialized(true);
@@ -43,11 +44,9 @@ const AdBanner = ({ position = 'top' }) => {
       // 기존 광고 숨기기
       await AdMob.hideBanner();
 
-      // 배너 광고 표시
+      // 배너 광고 표시 (실제 광고 단위 ID)
       await AdMob.showBanner({
-        // 테스트 기기에서도 확실히 노출되도록 구글 테스트 단위 아이디 사용 (안드로이드)
-        adUnitId: 'ca-app-pub-3940256099942544/6300978111',
-        adId: 'ca-app-pub-3940256099942544/6300978111',
+        adId: 'ca-app-pub-1120357008550196/9792898335',
         adSize: BannerAdSize.BANNER, // 320x50
         position: position === 'top' ? BannerAdPosition.TOP_CENTER : BannerAdPosition.BOTTOM_CENTER,
         margin: 0,
