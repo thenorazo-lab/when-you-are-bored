@@ -18,6 +18,9 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// 정적 파일 제공 - 개인정보처리방침
+app.use(express.static(__dirname));
+
 // 핫이슈 API 엔드포인트 (사이트별)
 app.get('/api/hot-issues/:siteId', async (req, res) => {
   const { siteId } = req.params;
