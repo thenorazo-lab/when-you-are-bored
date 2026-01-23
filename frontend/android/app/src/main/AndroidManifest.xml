@@ -44,4 +44,7 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Android 13+ 광고 ID 접근 권한 (권장) -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 </manifest>

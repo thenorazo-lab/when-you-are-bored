@@ -1,22 +1,26 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Browser } from '@capacitor/browser';
+import { Capacitor } from '@capacitor/core';
 
 const HotIssueCard = ({ issue, siteId }) => {
-  const navigate = useNavigate();
   
-  const handleClick = (e) => {    e.preventDefault();
+  const handleClick = async (e) => {
+    e.preventDefault();
     e.stopPropagation();
-        if (issue.url && issue.url !== '#') {
+    if (issue.url && issue.url !== '#') {
       console.log('🔥 핫이슈 카드 클릭!');
       console.log('  issue.url:', issue.url);
       console.log('  siteId:', siteId);
       
-      // 모두 앱 내 WebView로 열기
-      localStorage.setItem('currentArticleUrl', issue.url);
-      console.log('✅ localStorage 저장 완료:', issue.url);
-      
-      // 직접 URL 변경
-      window.location.hash = `/view/${siteId}`;
+      try {
+        if (Capacitor.isNativePlatform()) {
+          await Browser.open({ url: issue.url });
+        } else {
+          window.open(issue.url, '_blank');
+        }
+      } catch (error) {
+        console.error('❌ 핫이슈 클릭 에러:', error);
+      }
     }
   };
 

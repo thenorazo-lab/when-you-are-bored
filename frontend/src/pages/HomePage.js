@@ -15,13 +15,17 @@ const HomePage = () => {
   }, []);
 
   const selectRandomSiteAndFetchIssues = async () => {
-    // 크롤링 구현된 사이트 중 앱 내 뷰어로 볼 수 있는 사이트만
+    // 크롤링 구현된 모든 사이트 반영
     const crawlableSites = [
       { id: 'humoruniv', name: '웃긴대학', category: '커뮤니티' },
       { id: 'todayhumor', name: '오늘의유머', category: '커뮤니티' },
       { id: 'ppomppu', name: '뽐뿌', category: '커뮤니티' },
-      { id: 'dogdrip', name: '개드립', category: '커뮤니티' },
       { id: 'natepann', name: '네이트판', category: '커뮤니티' },
+      { id: 'dcinside', name: '디시인사이드', category: '커뮤니티' },
+      { id: 'dogdrip', name: '개드립', category: '커뮤니티' },
+      { id: 'instiz', name: '인스티즈', category: '커뮤니티' },
+      { id: 'mlbpark', name: 'MLBPARK', category: '커뮤니티' },
+      { id: 'yosimdae', name: '여성시대', category: '커뮤니티' },
     ];
     
     // 랜덤 선택
@@ -34,8 +38,8 @@ const HomePage = () => {
 
   const fetchHotIssues = async (siteId) => {
     try {
-      // Render 클라우드 백엔드 사용
-      const apiUrl = 'https://when-you-are-bored.onrender.com';
+      // 백엔드 API 베이스: 환경변수 우선, 없으면 roamom 백엔드 사용
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://roamom-backend.onrender.com';
       
       const response = await fetch(`${apiUrl}/api/hot-issues/${siteId}`);
       const data = await response.json();
@@ -77,72 +81,65 @@ const HomePage = () => {
     }
   };
 
-  // 앱 내 뷰어 가능 사이트
-  const communitiesInApp = [
+  // 모든 커뮤니티를 외부 브라우저로
+  const communities = [
     { id: 'humoruniv', name: '웃긴대학', url: 'https://m.humoruniv.com/board/list.html?table=pds', icon: '😄' },
     { id: 'todayhumor', name: '오늘의유머', url: 'https://m.todayhumor.co.kr/list.php?table=bestofbest', icon: '😂' },
     { id: 'ppomppu', name: '뽐뿌', url: 'https://www.ppomppu.co.kr/zboard/zboard.php?id=humor', icon: '💰' },
     { id: 'fmkorea', name: '에펨코리아', url: 'https://www.fmkorea.com/humor', icon: '🔥' },
     { id: 'dogdrip', name: '개드립', url: 'https://www.dogdrip.net/', icon: '🐶' },
     { id: 'natepann', name: '네이트판', url: 'https://pann.nate.com/', icon: '💭' },
+    { id: 'mlbpark', name: 'MLBPARK', url: 'https://mlbpark.donga.com/mp/b.php?b=bullpen', icon: '⚾' },
+    { id: 'dcinside', name: '디시인사이드', url: 'https://www.dcinside.com/', icon: '💬' },
+    { id: 'instiz', name: '인스티즈', url: 'https://www.instiz.net/hot.htm', icon: '✨' },
+    { id: 'yosimdae', name: '여성시대', url: 'https://cafe.daum.net/subdued20club', icon: '👩' },
+    { id: 'jjukbbang', name: '쭉빵', url: 'https://cafe.daum.net/ok1221', icon: '🍞' },
+    { id: 'everytime', name: '에브리타임', url: 'https://everytime.kr/', icon: '🎓' },
+    { id: 'blind', name: '블라인드', url: 'https://www.teamblind.com/kr/', icon: '🕶️' },
   ];
-
-  // 외부 브라우저 필요 사이트
-  const communitiesExternal = [
-    { id: 'mlbpark', name: 'MLBPARK', url: 'https://mlbpark.donga.com/mp/b.php?b=bullpen', icon: '⚾', badge: '외부 브라우저' },
-    { id: 'dcinside', name: '디시인사이드', url: 'https://www.dcinside.com/', icon: '💬', badge: '외부 브라우저' },
-    { id: 'instiz', name: '인스티즈', url: 'https://www.instiz.net/hot.htm', icon: '✨', badge: '외부 브라우저' },
-    { id: 'yosimdae', name: '여성시대', url: 'https://cafe.daum.net/subdued20club', icon: '👩', badge: '외부 브라우저' },
-    { id: 'jjukbbang', name: '쭉빵', url: 'https://cafe.daum.net/ok1221', icon: '🍞', badge: '외부 브라우저' },
-    { id: 'everytime', name: '에브리타임', url: 'https://everytime.kr/', icon: '🎓', badge: '외부 브라우저' },
-    { id: 'blind', name: '블라인드', url: 'https://www.teamblind.com/kr/', icon: '🕶️', badge: '외부 브라우저' },
-  ];
-
-  const communities = [...communitiesInApp, ...communitiesExternal];
 
   const shortforms = [
-    { id: 'tiktok', name: '틱톡', url: 'https://www.tiktok.com/ko-KR/', icon: '🎵', badge: '외부 브라우저' },
-    { id: 'youtube-shorts', name: '유튜브 쇼츠', url: 'https://www.youtube.com/shorts/tV5XZE38xvU', icon: '▶️', badge: '외부 브라우저' },
+    { id: 'tiktok', name: '틱톡', url: 'https://www.tiktok.com/ko-KR/', icon: '🎵' },
+    { id: 'youtube-shorts', name: '유튜브 쇼츠', url: 'https://www.youtube.com/shorts/tV5XZE38xvU', icon: '▶️' },
   ];
 
   const webtoons = [
-    { id: 'naver-webtoon', name: '네이버웹툰', url: 'https://comic.naver.com/index', icon: '📗', badge: '외부 브라우저' },
-    { id: 'kakao-webtoon', name: '카카오웹툰', url: 'https://webtoon.kakao.com/', icon: '📙', badge: '외부 브라우저' },
-    { id: 'lezhin', name: '레진코믹스', url: 'https://www.lezhin.com/ko', icon: '📕', badge: '외부 브라우저' },
-    { id: 'ridi-webtoon', name: '리디웹툰', url: 'https://ridibooks.com/webtoon/recommendation', icon: '📘', badge: '외부 브라우저' },
-    { id: 'toomics', name: '투믹스', url: 'https://www.toomics.com/', icon: '📔', badge: '외부 브라우저' },
-    { id: 'comico', name: '코미코', url: 'https://www.comico.jp/', icon: '📒', badge: '외부 브라우저' },
+    { id: 'kakao-webtoon', name: '카카오웹툰', url: 'https://webtoon.kakao.com/', icon: '📙' },
+    { id: 'naver-webtoon', name: '네이버웹툰', url: 'https://comic.naver.com/index', icon: '📗' },
+    { id: 'lezhin', name: '레진코믹스', url: 'https://www.lezhin.com/ko', icon: '📕' },
+    { id: 'toomics', name: '투믹스', url: 'https://www.toomics.com/', icon: '📔' },
+    { id: 'ridi-webtoon', name: '리디웹툰', url: 'https://ridibooks.com/webtoon/recommendation', icon: '📘' },
+    { id: 'comico', name: '코미코', url: 'https://www.comico.jp/', icon: '📒' },
   ];
 
   const novels = [
-    { id: 'munpia', name: '문피아', url: 'https://www.munpia.com/', icon: '📚', badge: '외부 브라우저' },
-    { id: 'kakaopage', name: '카카오페이지', url: 'https://page.kakao.com/', icon: '📖', badge: '외부 브라우저' },
-    { id: 'naver-series', name: '네이버시리즈', url: 'https://series.naver.com/novel/home.series', icon: '📘', badge: '외부 브라우저' },
-    { id: 'ridibooks', name: '리디북스', url: 'https://ridibooks.com/romance/webnovel', icon: '📙', badge: '외부 브라우저' },
-    { id: 'novelpia', name: '노벨피아', url: 'https://novelpia.com/', icon: '📗', badge: '외부 브라우저' },
-    { id: 'blice', name: '블라이스', url: 'https://www.blice.co.kr/web/homescreen/main.kt?service=WEBNOVEL&genre=romance', icon: '📕', badge: '외부 브라우저' },
-    { id: 'bookpal', name: '북팔', url: 'https://www.bookpal.co.kr/', icon: '📔', badge: '외부 브라우저' },
+    { id: 'kakaopage', name: '카카오페이지', url: 'https://page.kakao.com/', icon: '📖' },
+    { id: 'naver-series', name: '네이버시리즈', url: 'https://series.naver.com/novel/home.series', icon: '📘' },
+    { id: 'novelpia', name: '노벨피아', url: 'https://novelpia.com/', icon: '📗' },
+    { id: 'blice', name: '블라이스', url: 'https://www.blice.co.kr/web/homescreen/main.kt?service=WEBNOVEL&genre=romance', icon: '📕' },
+    { id: 'bookpal', name: '북팔', url: 'https://www.bookpal.co.kr/', icon: '📔' },
+    { id: 'munpia', name: '문피아', url: 'https://www.munpia.com/', icon: '📚' },
+    { id: 'ridibooks', name: '리디북스', url: 'https://ridibooks.com/romance/webnovel', icon: '📙' },
   ];
 
   const aiServices = [
-    { id: 'chatgpt', name: 'ChatGPT', url: 'https://chatgpt.com/', icon: '🤖', badge: '외부 브라우저' },
-    { id: 'claude', name: 'Claude', url: 'https://claude.ai/new', icon: '🧠', badge: '외부 브라우저' },
-    { id: 'wrtn', name: '뤼튼', url: 'https://wrtn.ai/', icon: '✨', badge: '외부 브라우저' },
+    { id: 'chatgpt', name: 'ChatGPT', url: 'https://chatgpt.com/', icon: '🤖' },
+    { id: 'claude', name: 'Claude', url: 'https://claude.ai/new', icon: '🧠' },
+    { id: 'wrtn', name: '뤼튼', url: 'https://wrtn.ai/', icon: '✨' },
   ];
 
   const games = [
-    { id: 'poki', name: 'Poki', url: 'https://poki.com/kr', icon: '🎮', badge: '외부 브라우저' },
-    { id: 'y8', name: 'Y8게임', url: 'https://ko.y8.com/', icon: '🕹️', badge: '외부 브라우저' },
-    { id: 'crazygames', name: 'Crazy Games', url: 'https://www.crazygames.com/', icon: '🎯', badge: '외부 브라우저' },
-    { id: 'miniclip', name: 'Miniclip', url: 'https://miniclip.com/', icon: '🎲', badge: '외부 브라우저' },
+    { id: 'poki', name: 'Poki', url: 'https://poki.com/kr', icon: '🎮' },
+    { id: 'y8', name: 'Y8게임', url: 'https://ko.y8.com/', icon: '🕹️' },
+    { id: 'crazygames', name: 'Crazy Games', url: 'https://www.crazygames.com/', icon: '🎯' },
+    { id: 'miniclip', name: 'Miniclip', url: 'https://miniclip.com/', icon: '🎲' },
   ];
 
   return (
     <div className="min-h-screen">
       <Header />
       
-      {/* 상단 광고 */}
-      <AdBanner position="top" />
+      {/* 페이지별 추가 배너는 제거 (전역 배너 사용) */}
       
       {/* 로그인 안내 문구 */}
       <div className="text-white/70 text-sm mb-4 px-1">
@@ -190,8 +187,6 @@ const HomePage = () => {
         <SiteGrid sites={communities} categoryName="커뮤니티" />
       </section>
 
-      {/* 중간 광고 */}
-      <AdBanner position="middle" />
 
       {/* 숏폼 섹션 */}
       <section className="mb-8">
@@ -233,8 +228,8 @@ const HomePage = () => {
         <SiteGrid sites={games} categoryName="웹게임" />
       </section>
 
-      {/* 하단 광고 */}
-      <AdBanner position="bottom" />
+      {/* 하단 광고 배너 여유 공간 */}
+      <div className="h-24"></div>
     </div>
   );
 };

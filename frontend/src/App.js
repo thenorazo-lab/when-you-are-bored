@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { App as CapApp } from '@capacitor/app';
 import { Dialog } from '@capacitor/dialog';
@@ -6,6 +6,8 @@ import { Capacitor } from '@capacitor/core';
 import './App.css';
 import HomePage from './pages/HomePage';
 import WebViewPage from './pages/WebViewPage';
+import AdBanner from './components/AdBanner';
+import SplashScreen from './components/SplashScreen';
 
 function BackHandler() {
   const location = useLocation();
@@ -45,6 +47,17 @@ function BackHandler() {
 }
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} duration={1500} />;
+  }
+
   return (
     <Router>
       <div className="App">
@@ -53,6 +66,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/view/:siteId" element={<WebViewPage />} />
         </Routes>
+        {/* 하단 배너 */}
+        <AdBanner position="bottom" />
       </div>
     </Router>
   );

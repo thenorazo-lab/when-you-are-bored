@@ -13,46 +13,14 @@ const SiteGrid = ({ sites, categoryName }) => {
       e.preventDefault();
       e.stopPropagation();
     }
-    
     console.log('🎯 SiteGrid 클릭:', site.name, site.url);
-    
     try {
-      // iframe 차단 사이트 목록
-      const blockedSites = [
-        'mlbpark','everytime','blind','yosimdae','jjukbbang','dcinside','instiz',
-        // 숏폼
-        'tiktok','youtube-shorts',
-        // 웹툰
-        'naver-webtoon','kakao-webtoon','lezhin','ridi-webtoon','toomics','comico',
-        // 웹소설
-        'munpia','kakaopage','naver-series','ridibooks','novelpia','blice','bookpal',
-        // AI
-        'chatgpt','claude','wrtn',
-        // 웹게임
-        'poki','y8','crazygames','miniclip'
-      ];
-      
-      // 차단 사이트는 외부 브라우저로 열기
-      if (blockedSites.includes(site.id)) {
-        console.log('🌐 외부 브라우저로 열기:', site.url);
-        visitHistoryManager.recordVisit(site.id, site.name);
-        
-        if (Capacitor.isNativePlatform()) {
-          await Browser.open({ url: site.url });
-        } else {
-          window.open(site.url, '_blank');
-        }
-        return;
-      }
-      
-      // 일반 사이트는 앱 내 뷰어로
       visitHistoryManager.recordVisit(site.id, site.name);
-      localStorage.setItem('currentArticleUrl', site.url);
-      console.log('✅ localStorage 저장:', site.url);
-      console.log('🚀 직접 이동 to /#/view/' + site.id);
-      
-      // navigate 대신 직접 URL 변경
-      window.location.hash = `/view/${site.id}`;
+      if (Capacitor.isNativePlatform()) {
+        await Browser.open({ url: site.url });
+      } else {
+        window.open(site.url, '_blank');
+      }
     } catch (error) {
       console.error('❌ 클릭 에러:', error);
     }
@@ -60,15 +28,22 @@ const SiteGrid = ({ sites, categoryName }) => {
 
   const displaySites = showAll ? sites : sites.slice(0, 4);
   const hasMore = sites.length > 4;
+  const [failedIcons, setFailedIcons] = useState(new Set());
 
-  // 도메인에서 favicon 가져오기
+  // 도메인에서 favicon 가져오기 (여러 fallback 옵션)
   const getFaviconUrl = (url) => {
     try {
-      const domain = new URL(url).hostname;
-      return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+      const urlObj = new URL(url);
+      const domain = urlObj.hostname;
+      // DuckDuckGo API 사용 (더 안정적)
+      return `https://icons.duckduckgo.com/ip3/${domain}.ico`;
     } catch {
       return null;
     }
+  };
+
+  const handleImageError = (siteId) => {
+    setFailedIcons(prev => new Set([...prev, siteId]));
   };
 
   return (
@@ -77,6 +52,7 @@ const SiteGrid = ({ sites, categoryName }) => {
         {displaySites.map((site) => {
           const hasVisited = visitHistoryManager.hasVisited(site.id);
           const faviconUrl = getFaviconUrl(site.url);
+          const showEmoji = !faviconUrl || failedIcons.has(site.id);
           
           return (
             <button
@@ -93,20 +69,18 @@ const SiteGrid = ({ sites, categoryName }) => {
             >
               {/* 로고 이미지 */}
               <div className="flex justify-center items-center mb-1 h-8" style={{ pointerEvents: 'none' }}>
-                {faviconUrl ? (
+                {!showEmoji && faviconUrl ? (
                   <img 
                     src={faviconUrl} 
                     alt={site.name}
                     className="w-6 h-6 object-contain"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'block';
-                    }}
+                    onError={() => handleImageError(site.id)}
                   />
-                ) : null}
-                <div className="text-2xl" style={{ display: faviconUrl ? 'none' : 'block' }}>
-                  {site.icon || '🌐'}
-                </div>
+                ) : (
+                  <div className="text-2xl">
+                    {site.icon || '🌐'}
+                  </div>
+                )}
               </div>
               
               <h3 className={`text-center font-bold text-[10px] ${
@@ -115,12 +89,7 @@ const SiteGrid = ({ sites, categoryName }) => {
                 {site.name}
               </h3>
               
-              {/* 외부 브라우저 배지 */}
-              {site.badge && (
-                <div className="mt-1 text-[8px] text-orange-300 font-bold" style={{ pointerEvents: 'none' }}>
-                  🌐 {site.badge}
-                </div>
-              )}
+              {/* 외부 브라우저 배지 제거 */}
             </button>
           );
         })}
