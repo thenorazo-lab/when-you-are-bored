@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import HotIssueCard from '../components/HotIssueCard';
 import SiteGrid from '../components/SiteGrid';
-import AdBanner from '../components/AdBanner';
 
 const HomePage = () => {
   const [hotIssues, setHotIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSite, setSelectedSite] = useState(null);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // 랜덤으로 사이트 선택
     selectRandomSiteAndFetchIssues();
