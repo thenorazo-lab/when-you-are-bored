@@ -16,6 +16,13 @@ const config: CapacitorConfig = {
     },
     CapacitorHttp: {
       enabled: true
+    },
+    // AdMob 설정
+    AdMob: {
+      appId: {
+        android: 'ca-app-pub-1120357008550196~4541421712',
+        ios: 'ca-app-pub-1120357008550196~4541421712'
+      }
     }
   },
   // iOS 설정

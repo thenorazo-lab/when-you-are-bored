@@ -54,32 +54,46 @@ const AdBanner = ({ position = 'bottom', refreshInterval = 60000 }) => {
 
     const showBanner = async () => {
       try {
-        console.log('🎬 배너 표시 시작 - adId:', adUnitId, 'position:', position);
+        console.log('🎬 배너 표시 시작 - adId:', adUnitId, 'position:', position, 'isTest:', useTestBanner);
+        console.log('🔍 AdMob 상태 확인 - initialized:', adInitialized, 'native:', isNative);
+
         // 기존 배너 제거
         try {
           await AdMob.hideBanner();
+          console.log('🧹 기존 배너 제거 완료');
         } catch (e) {
-          console.log('ℹ️ 기존 배너 없음');
+          console.log('ℹ️ 기존 배너 없음 또는 제거 실패:', e?.message);
         }
+
         // 배너 표시
+        console.log('📢 AdMob.showBanner 호출...');
         await AdMob.showBanner({
           adId: adUnitId,
           adSize: BannerAdSize.ADAPTIVE_BANNER,
           position: position === 'top' ? BannerAdPosition.TOP_CENTER : BannerAdPosition.BOTTOM_CENTER,
           margin: 0,
         });
+
         if (isMounted) {
-          console.log('✅ 배너 표시 성공!');
+          console.log('✅ 배너 표시 성공! 광고가 로드되었습니다.');
           setBannerShown(true);
           setError(null);
         }
       } catch (error) {
-        console.error('❌ 배너 표시 실패:', error);
+        console.error('❌ 배너 표시 실패 - 상세 정보:', {
+          message: error?.message,
+          code: error?.code,
+          stack: error?.stack,
+          adUnitId: adUnitId,
+          useTestBanner: useTestBanner
+        });
+
         if (isMounted) {
           setError('배너 표시 실패: ' + (error?.message || error));
+
           // 프로덕션 광고 실패 시 테스트 배너로 재시도
           if (!useTestBanner && error?.message?.includes('No fill')) {
-            console.log('🔄 테스트 배너로 재시도...');
+            console.log('🔄 "No fill" 에러로 테스트 배너로 재시도...');
             try {
               await AdMob.showBanner({
                 adId: testAdUnitId,
