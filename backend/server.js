@@ -6,8 +6,12 @@ const path = require('path');
 require('dotenv').config();
 const connectDB = require('./config/db');
 
+console.log('🚀 server.js 시작됨');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+console.log(`📡 PORT: ${PORT}`);
 
 // MongoDB 연결
 connectDB();
