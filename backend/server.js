@@ -30,6 +30,11 @@ app.get('/app-ads.txt', (req, res) => {
   console.log('✅ app-ads.txt served successfully');
 });
 
+// Health check 엔드포인트
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 // 핫이슈 API 엔드포인트 (사이트별)
 app.get('/api/hot-issues/:siteId', async (req, res) => {
   const { siteId } = req.params;
