@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const cheerio = require('cheerio');
+const path = require('path');
 require('dotenv').config();
 const connectDB = require('./config/db');
 
@@ -18,8 +19,8 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// 정적 파일 제공 - 개인정보처리방침
-app.use(express.static(__dirname));
+// 정적 파일 제공 - 개인정보처리방침 및 app-ads.txt
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 핫이슈 API 엔드포인트 (사이트별)
 app.get('/api/hot-issues/:siteId', async (req, res) => {
