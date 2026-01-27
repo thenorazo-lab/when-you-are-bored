@@ -22,6 +22,19 @@ app.use(express.json());
 // 정적 파일 제공 - 개인정보처리방침 및 app-ads.txt
 app.use(express.static(path.join(__dirname, 'public')));
 
+// app-ads.txt 디버깅
+app.get('/app-ads.txt', (req, res) => {
+  console.log('📄 app-ads.txt requested');
+  res.sendFile(path.join(__dirname, 'public', 'app-ads.txt'), (err) => {
+    if (err) {
+      console.error('❌ app-ads.txt serving error:', err);
+      res.status(404).send('Not Found');
+    } else {
+      console.log('✅ app-ads.txt served successfully');
+    }
+  });
+});
+
 // 핫이슈 API 엔드포인트 (사이트별)
 app.get('/api/hot-issues/:siteId', async (req, res) => {
   const { siteId } = req.params;
