@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Browser } from '@capacitor/browser';
 import { Capacitor } from '@capacitor/core';
 import { visitHistoryManager } from '../utils/visitHistory';
 
 const SiteGrid = ({ sites, categoryName }) => {
-  const navigate = useNavigate();
   const [showAll, setShowAll] = useState(false);
 
   const handleSiteClick = async (e, site) => {
@@ -13,7 +11,7 @@ const SiteGrid = ({ sites, categoryName }) => {
       e.preventDefault();
       e.stopPropagation();
     }
-    console.log('🎯 SiteGrid 클릭:', site.name, site.url);
+
     try {
       visitHistoryManager.recordVisit(site.id, site.name);
       if (Capacitor.isNativePlatform()) {
@@ -22,7 +20,7 @@ const SiteGrid = ({ sites, categoryName }) => {
         window.open(site.url, '_blank');
       }
     } catch (error) {
-      console.error('❌ 클릭 에러:', error);
+      console.error('사이트 열기 에러:', error);
     }
   };
 
@@ -57,10 +55,7 @@ const SiteGrid = ({ sites, categoryName }) => {
           return (
             <button
               key={site.id}
-              onClick={(e) => {
-                console.log('👆 button onClick 발생!');
-                handleSiteClick(e, site);
-              }}
+              onClick={(e) => handleSiteClick(e, site)}
               className={`backdrop-blur-md rounded-xl p-2 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 w-full ${
                 hasVisited 
                   ? 'bg-white/5 hover:bg-white/10' 
@@ -88,8 +83,6 @@ const SiteGrid = ({ sites, categoryName }) => {
               }`} style={{ pointerEvents: 'none' }}>
                 {site.name}
               </h3>
-              
-              {/* 외부 브라우저 배지 제거 */}
             </button>
           );
         })}

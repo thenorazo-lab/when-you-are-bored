@@ -8,10 +8,6 @@ const HotIssueCard = ({ issue, siteId }) => {
     e.preventDefault();
     e.stopPropagation();
     if (issue.url && issue.url !== '#') {
-      console.log('🔥 핫이슈 카드 클릭!');
-      console.log('  issue.url:', issue.url);
-      console.log('  siteId:', siteId);
-      
       try {
         if (Capacitor.isNativePlatform()) {
           await Browser.open({ url: issue.url });
@@ -19,7 +15,7 @@ const HotIssueCard = ({ issue, siteId }) => {
           window.open(issue.url, '_blank');
         }
       } catch (error) {
-        console.error('❌ 핫이슈 클릭 에러:', error);
+        console.error('핫이슈 클릭 에러:', error);
       }
     }
   };

@@ -66,7 +66,6 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/view/:siteId" element={<WebViewPage />} />
         </Routes>
-        {/* 하단 배너 */}
         <AdBanner position="bottom" />
       </div>
     </Router>

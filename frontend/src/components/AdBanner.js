@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { AdMob, BannerAdSize, BannerAdPosition } from '@capacitor-community/admob';
+import React, { useEffect, useState, useRef } from 'react';
+import { AdMob, BannerAdSize, BannerAdPosition, BannerAdPluginEvents } from '@capacitor-community/admob';
 import { Capacitor } from '@capacitor/core';
 
-const AdBanner = ({ position = 'bottom', refreshInterval = 60000 }) => {
+// refreshInterval: 0이면 한 번 표시 후 새로고침 안 함. 주기적 새로고침은 유효 노출을 늘리지 않고 정책 위험만 있음.
+const AdBanner = ({ position = 'bottom', refreshInterval = 0 }) => {
   const [isNative, setIsNative] = useState(false);
   const [adInitialized, setAdInitialized] = useState(false);
   const [bannerShown, setBannerShown] = useState(false);
@@ -10,63 +11,73 @@ const AdBanner = ({ position = 'bottom', refreshInterval = 60000 }) => {
 
   const productionAdUnitId = 'ca-app-pub-1120357008550196/9792898335';
   const testAdUnitId = 'ca-app-pub-3940256099942544/6300978111';
-  const useTestBanner = (process.env.REACT_APP_ADMOB_USE_TEST_BANNER === 'true');
+  const useTestBanner = process.env.REACT_APP_ADMOB_USE_TEST_BANNER === 'true';
   const adUnitId = useTestBanner ? testAdUnitId : productionAdUnitId;
 
-  console.log('🎯 AdBanner 렌더링 - position:', position, 'useTestBanner:', useTestBanner, 'adUnitId:', adUnitId);
+  const refreshTimerRef = useRef(null);
+  const listenersAddedRef = useRef(false);
 
-  console.log('🎯 AdBanner 렌더링 - position:', position, 'useTestBanner:', useTestBanner, 'adUnitId:', adUnitId);
-
-  // AdMob 초기화
+  // 플랫폼 확인 및 AdMob 초기화
   useEffect(() => {
     const nativePlatform = Capacitor.isNativePlatform();
-    console.log('📱 플랫폼 확인:', nativePlatform ? 'Native' : 'Web');
     setIsNative(nativePlatform);
 
-    if (!nativePlatform) return;
+    if (!nativePlatform) {
+      setError('웹 환경에서는 광고가 표시되지 않습니다');
+      return;
+    }
 
     const initializeAdMob = async () => {
       try {
-        console.log('🔧 AdMob 초기화 시작...');
-        await AdMob.initialize({
-          initializeForTesting: useTestBanner,
-        });
-        console.log('✅ AdMob 초기화 완료 (testing:', useTestBanner, ')');
+        await AdMob.initialize({ initializeForTesting: useTestBanner });
         setAdInitialized(true);
       } catch (error) {
-        console.error('❌ AdMob 초기화 실패:', error);
-        setError('초기화 실패: ' + (error?.message || error));
+        console.error('AdMob 초기화 실패:', error);
+        setError('광고 초기화 실패: ' + (error?.message || error));
+        setAdInitialized(true); // 초기화 실패해도 배너 표시 시도
       }
     };
 
     initializeAdMob();
   }, [useTestBanner]);
 
-  // 배너 표시 및 주기적 새로고침
+  // AdMob 이벤트 리스너는 한 번만 등록 (bannerShown 의존 제거 → 무한 해제/등록 방지)
   useEffect(() => {
-    if (!isNative || !adInitialized) {
-      console.log('⏸️ 배너 표시 대기 중 - isNative:', isNative, 'adInitialized:', adInitialized);
-      return;
-    }
+    if (!isNative || listenersAddedRef.current) return;
 
-    let isMounted = true;
-    let refreshTimer = null;
+    let loadedHandle;
+    let failedHandle;
 
-    const showBanner = async () => {
+    const setup = async () => {
+      loadedHandle = await AdMob.addListener(BannerAdPluginEvents.Loaded, () => {
+        setBannerShown(true);
+        setError(null);
+      });
+      failedHandle = await AdMob.addListener(BannerAdPluginEvents.FailedToLoad, (err) => {
+        setError('광고 로드 실패: ' + (err?.message || err));
+        setBannerShown(false);
+      });
+      listenersAddedRef.current = true;
+    };
+    setup();
+
+    return () => {
+      if (loadedHandle?.remove) loadedHandle.remove();
+      if (failedHandle?.remove) failedHandle.remove();
+      listenersAddedRef.current = false;
+    };
+  }, [isNative]);
+
+  // 배너 표시 로직
+  useEffect(() => {
+    if (!isNative || !adInitialized) return;
+
+    const showBanner = async (isRefresh = false) => {
       try {
-        console.log('🎬 배너 표시 시작 - adId:', adUnitId, 'position:', position, 'isTest:', useTestBanner);
-        console.log('🔍 AdMob 상태 확인 - initialized:', adInitialized, 'native:', isNative);
-
-        // 기존 배너 제거
-        try {
-          await AdMob.hideBanner();
-          console.log('🧹 기존 배너 제거 완료');
-        } catch (e) {
-          console.log('ℹ️ 기존 배너 없음 또는 제거 실패:', e?.message);
+        if (isRefresh) {
+          await AdMob.hideBanner().catch(() => {});
         }
 
-        // 배너 표시
-        console.log('📢 AdMob.showBanner 호출...');
         await AdMob.showBanner({
           adId: adUnitId,
           adSize: BannerAdSize.ADAPTIVE_BANNER,
@@ -74,59 +85,30 @@ const AdBanner = ({ position = 'bottom', refreshInterval = 60000 }) => {
           margin: 0,
         });
 
-        if (isMounted) {
-          console.log('✅ 배너 표시 성공! 광고가 로드되었습니다.');
-          setBannerShown(true);
-          setError(null);
-        }
+        // showBanner가 성공하면 배너가 표시된 것으로 간주
+        setBannerShown(true);
+        setError(null);
       } catch (error) {
-        console.error('❌ 배너 표시 실패 - 상세 정보:', {
-          message: error?.message,
-          code: error?.code,
-          stack: error?.stack,
-          adUnitId: adUnitId,
-          useTestBanner: useTestBanner
-        });
-
-        if (isMounted) {
-          setError('배너 표시 실패: ' + (error?.message || error));
-
-          // 프로덕션 광고 실패 시 테스트 배너로 재시도
-          if (!useTestBanner && error?.message?.includes('No fill')) {
-            console.log('🔄 "No fill" 에러로 테스트 배너로 재시도...');
-            try {
-              await AdMob.showBanner({
-                adId: testAdUnitId,
-                adSize: BannerAdSize.ADAPTIVE_BANNER,
-                position: position === 'top' ? BannerAdPosition.TOP_CENTER : BannerAdPosition.BOTTOM_CENTER,
-                margin: 0,
-              });
-              console.log('✅ 테스트 배너 표시 성공');
-              setBannerShown(true);
-              setError(null);
-            } catch (fallbackError) {
-              console.error('❌ 테스트 배너도 실패:', fallbackError);
-            }
-          }
-        }
+        console.error('배너 표시 실패:', error);
+        setError('배너 표시 실패: ' + (error?.message || error));
+        setBannerShown(false);
       }
     };
 
-    showBanner();
+    showBanner(false);
 
-    // 주기적 새로고침
     if (refreshInterval > 0) {
-      refreshTimer = setInterval(() => {
-        showBanner();
-      }, refreshInterval);
+      refreshTimerRef.current = setInterval(() => showBanner(true), refreshInterval);
     }
 
     return () => {
-      isMounted = false;
-      if (refreshTimer) clearInterval(refreshTimer);
-      AdMob.hideBanner().catch(e => console.log('ℹ️ 배너 숨김 스킵:', e?.message));
+      if (refreshTimerRef.current) {
+        clearInterval(refreshTimerRef.current);
+        refreshTimerRef.current = null;
+      }
+      AdMob.hideBanner().catch(() => {});
     };
-  }, [isNative, adInitialized, position, adUnitId, useTestBanner, testAdUnitId, refreshInterval]);
+  }, [isNative, adInitialized, adUnitId, position, refreshInterval]);
 
   // 웹 환경에서는 플레이스홀더 표시
   if (!isNative) {
@@ -142,13 +124,13 @@ const AdBanner = ({ position = 'bottom', refreshInterval = 60000 }) => {
     );
   }
 
-  // 네이티브 환경 - 상태 표시와 함께
+  // 네이티브 환경 - 상태 표시
   return (
     <div className="w-full" style={{ height: '50px', backgroundColor: '#f0f0f0' }}>
       <div className="flex items-center justify-center h-full text-xs text-gray-500">
         {!adInitialized && '광고 초기화 중...'}
         {adInitialized && !bannerShown && '광고 로딩 중...'}
-        {bannerShown && ''}
+        {bannerShown && '광고 표시됨!'}
         {error && <span className="text-red-500 px-2">{error}</span>}
       </div>
     </div>

@@ -1,87 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Header from '../components/Header';
 import HotIssueCard from '../components/HotIssueCard';
 import SiteGrid from '../components/SiteGrid';
+
+// 오늘의 핫이슈 랜덤 후보 (개드립·여성시대 제외)
+const CRAWLABLE_SITES = [
+  { id: 'humoruniv', name: '웃긴대학', category: '커뮤니티' },
+  { id: 'todayhumor', name: '오늘의유머', category: '커뮤니티' },
+  { id: 'ppomppu', name: '뽐뿌', category: '커뮤니티' },
+  { id: 'natepann', name: '네이트판', category: '커뮤니티' },
+  { id: 'dcinside', name: '디시인사이드', category: '커뮤니티' },
+  { id: 'instiz', name: '인스티즈', category: '커뮤니티' },
+  { id: 'mlbpark', name: 'MLBPARK', category: '커뮤니티' },
+];
 
 const HomePage = () => {
   const [hotIssues, setHotIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSite, setSelectedSite] = useState(null);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    // 랜덤으로 사이트 선택
-    selectRandomSiteAndFetchIssues();
-  }, []);
-
-  const selectRandomSiteAndFetchIssues = async () => {
-    // 크롤링 구현된 모든 사이트 반영
-    const crawlableSites = [
-      { id: 'humoruniv', name: '웃긴대학', category: '커뮤니티' },
-      { id: 'todayhumor', name: '오늘의유머', category: '커뮤니티' },
-      { id: 'ppomppu', name: '뽐뿌', category: '커뮤니티' },
-      { id: 'natepann', name: '네이트판', category: '커뮤니티' },
-      { id: 'dcinside', name: '디시인사이드', category: '커뮤니티' },
-      { id: 'dogdrip', name: '개드립', category: '커뮤니티' },
-      { id: 'instiz', name: '인스티즈', category: '커뮤니티' },
-      { id: 'mlbpark', name: 'MLBPARK', category: '커뮤니티' },
-      { id: 'yosimdae', name: '여성시대', category: '커뮤니티' },
-    ];
-    
-    // 랜덤 선택
-    const randomSite = crawlableSites[Math.floor(Math.random() * crawlableSites.length)];
-    setSelectedSite(randomSite);
-    
-    // 백엔드에서 핫이슈 가져오기
-    await fetchHotIssues(randomSite.id);
-  };
-
-  const fetchHotIssues = async (siteId) => {
+  const fetchHotIssues = useCallback(async (siteId, siteName) => {
+    setLoading(true);
     try {
-      // 백엔드 API 베이스: 환경변수 우선, 없으면 roamom 백엔드 사용
       const apiUrl = process.env.REACT_APP_API_URL || 'https://roamom-backend.onrender.com';
-      
       const response = await fetch(`${apiUrl}/api/hot-issues/${siteId}`);
       const data = await response.json();
       setHotIssues(data);
-    } catch (error) {
-      console.error('핫이슈 불러오기 실패:', error);
-      // 에러 시 샘플 데이터 사용
+    } catch (err) {
+      console.error('핫이슈 불러오기 실패:', err);
+      const name = siteName || '커뮤니티';
       setHotIssues([
-        {
-          id: 1,
-          title: `${selectedSite?.name || '커뮤니티'} 인기글 1 - 실제 크롤링 데이터로 대체 예정`,
-          source: selectedSite?.name || '커뮤니티',
-          views: '1.2k',
-          comments: '45',
-          thumbnail: 'https://via.placeholder.com/300x200',
-          url: '#'
-        },
-        {
-          id: 2,
-          title: `${selectedSite?.name || '커뮤니티'} 인기글 2 - 클릭하면 해당 사이트로 이동`,
-          source: selectedSite?.name || '커뮤니티',
-          views: '2.5k',
-          comments: '89',
-          thumbnail: 'https://via.placeholder.com/300x200',
-          url: '#'
-        },
-        {
-          id: 3,
-          title: `${selectedSite?.name || '커뮤니티'} 인기글 3 - 백엔드 크롤링 구현 필요`,
-          source: selectedSite?.name || '커뮤니티',
-          views: '890',
-          comments: '23',
-          thumbnail: 'https://via.placeholder.com/300x200',
-          url: '#'
-        }
+        { id: 1, title: `${name} 인기글 1 - 로딩 실패`, source: name, views: '1.2k', comments: '45', thumbnail: 'https://via.placeholder.com/300x200', url: '#' },
+        { id: 2, title: `${name} 인기글 2 - 클릭 시 해당 사이트로 이동`, source: name, views: '2.5k', comments: '89', thumbnail: 'https://via.placeholder.com/300x200', url: '#' },
+        { id: 3, title: `${name} 인기글 3`, source: name, views: '890', comments: '23', thumbnail: 'https://via.placeholder.com/300x200', url: '#' },
       ]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // 모든 커뮤니티를 외부 브라우저로
+  const selectRandomSiteAndFetchIssues = useCallback(async () => {
+    const randomSite = CRAWLABLE_SITES[Math.floor(Math.random() * CRAWLABLE_SITES.length)];
+    setSelectedSite(randomSite);
+    await fetchHotIssues(randomSite.id, randomSite.name);
+  }, [fetchHotIssues]);
+
+  // 마운트 시 1회만 실행 (의존 배열에 selectRandomSiteAndFetchIssues 넣으면 무한 루프 발생하므로 빈 배열)
+  useEffect(() => {
+    selectRandomSiteAndFetchIssues();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const communities = [
     { id: 'humoruniv', name: '웃긴대학', url: 'https://m.humoruniv.com/board/list.html?table=pds', icon: '😄' },
     { id: 'todayhumor', name: '오늘의유머', url: 'https://m.todayhumor.co.kr/list.php?table=bestofbest', icon: '😂' },
@@ -138,15 +106,9 @@ const HomePage = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      
-      {/* 페이지별 추가 배너는 제거 (전역 배너 사용) */}
-      
-      {/* 로그인 안내 문구 */}
       <div className="text-white/70 text-sm mb-4 px-1">
-        * 최초 로그인 1회 로그인 시 로그인 상태 유지됩니다.
+        * 최초 1회만 로그인하면 로그인 상태가 유지됩니다.
       </div>
-      
-      {/* 오늘의 핫이슈 섹션 */}
       <section className="mb-8">
         <div className="flex items-center justify-between mb-4 gap-2">
           <h2 className="text-base sm:text-lg md:text-xl font-bold text-white flex items-center">
